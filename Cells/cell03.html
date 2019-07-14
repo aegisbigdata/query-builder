@@ -43,50 +43,10 @@ td{
 }
 
 </style>
-<button type="button" class="btn btn-primary btn-md" onclick="showCurrentBrowser()">Local Broswer</button>
-<button type="button" class="btn btn-primary btn-md" onclick="showFutureBrowser();">Metadata Browser</button>
-<hr><hr>
-<div id="metadata-datasets" class="panel panel-default" style="display:none">
+<button type="button" class="btn btn-primary btn-md" onclick="showCurrentBrowser()">Refresh Broswer</button>
 
-  <div class="panel-body">
-  <table class="table">
-    <thead>
-      <tr>
-        <th data-field="title">Title</th>
-        <th data-field="description">Description</th>
-        <th data-field="contact-point">Contact Point</th>
-        <th data-field="publisher">Publisher</th>
-        <th data-field="keywords">Keywords</th>
-      </tr>
-    </thead>
-    <tbody id="fab2">
-    </tbody>
-  </table>
-  
-  </div>
-</div>
 
-<div id="metadata-datasets-info" class="panel panel-default" style="display:none">
-
-  <div class="panel-body">
-  <table class="table">
-    <thead>
-      <tr>
-        <th data-field="loadlink"></th>
-        <th data-field="title">Title</th>
-        <th data-field="description">Description</th>
-        <th data-field="license">License</th>
-        <th data-field="fields">Fields</th>
-      </tr>
-    </thead>
-    <tbody id="datasets-info-table">
-    </tbody>
-  </table>
-  
-  </div>
-</div>
-
-<div id="cbrowser" style="display:none">
+<div id="cbrowser" >
    <div class="form-group">
       <label style="width: 20%;" class="qblabel">Available Datasets</label>
       <div style="display: inline-block;width: 70%;">
@@ -1355,28 +1315,18 @@ function masterDFupdated(data){
 }
                                                              
 function showFutureBrowser() {
+/*
     var x = document.getElementById("metadata-datasets");
-    if (x.style.display === "none") {
-        document.getElementById("cbrowser").style.display = "none";
-        x.style.display = "block";
-        retrieve_datasets();
-    } else {
-        x.style.display = "none";
-    }
-    document.getElementById("metadata-datasets-info").style.display = "none";
+    retrieve_datasets();
+    
+*/
 } 
                                                              
 function populateAvailableDatasetsList(data){
     $.get("/hopsworks-api/api/project/"+data.content.text+"/dataset/getContent", function(data,status){
         var user_datasets = []
         var x = document.getElementById("cbrowser");
-        if (x.style.display === "none") {
-            document.getElementById("metadata-datasets").style.display = "none";
-            document.getElementById("metadata-datasets-info").style.display = "none";
-            x.style.display = "block";
-        } else {
-            x.style.display = "none";
-        }
+        
         skipthem = ["Jupyter","Logs","Models","notebook","Resources"]
         data.forEach(function(element){
             if(skipthem.includes(element.name) || element.name.endsWith(".db")){
@@ -1400,7 +1350,7 @@ function populateAvailableDatasetsList(data){
                                                              
 function showCurrentBrowser() {
     var x = document.getElementById("cbrowser");
-    if (x.style.display === "none") {
+    
         $.get("/hopsworks-api/api/project", function(data,status){
             var pdict = {}
             data.forEach(function(e){
@@ -1415,9 +1365,7 @@ function showCurrentBrowser() {
             var pdict_parameter = (JSON.stringify(pdict))
             var msg_id = kernel.execute('find_current_projectID(\''+pdict_parameter+'\')', callbacks);
         })
-    } else {
-        x.style.display = "none";
-    }
+    
 } 
                                                              
 function datafilesObtained(options){
@@ -2016,6 +1964,7 @@ function optionGenerator(instance,paramObj){
                                                  
                                                  <script>
 var k=0;
+/*
 function handle_datasets_output(data){
     available_datasets = data.content;
     available_datasets = JSON.parse(available_datasets.text.slice(2,-1));
@@ -2036,6 +1985,7 @@ function handle_datasets_output(data){
     });
     $("#metadata-datasets").show();
 }
+*/
 
 function handle_dataset_retrieval(data){
     dataset = data.content;
@@ -2069,6 +2019,7 @@ function handle_dataset_loading(data){
     }
 }
 
+/*
 function retrieve_datasets(){
     var kernel = IPython.notebook.kernel;
     var callbacks = {
@@ -2078,6 +2029,7 @@ function retrieve_datasets(){
     }
     var msg_id = kernel.execute('get_datasets()', callbacks);
 }
+*/
 
 function getRequestedDataset(dataset_name){
     var kernel = IPython.notebook.kernel;
