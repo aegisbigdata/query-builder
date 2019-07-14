@@ -1,0 +1,16 @@
+{
+    "outputs": [
+        {
+            "data": {
+                "text/html": [
+                    "<h3 style=\"color:#42A5F5;\">Run this cell and click the button to initialize.</h3>"
+                ],
+                "text/plain": [
+                    "<IPython.core.display.HTML object>"
+                ]
+            },
+            "metadata": {},
+            "output_type": "display_data"
+        }
+    ]
+}
