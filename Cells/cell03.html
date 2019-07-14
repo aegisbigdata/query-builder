@@ -1,0 +1,2110 @@
+%%html
+<!-- P2 -->
+
+<style>
+
+
+
+.tagclass {
+    background:grey;
+    border:none;
+}
+.fieldcell{
+    white-space:pre-wrap;
+}
+td{
+  text-align:left;
+}
+
+table{
+    table-layout: auto !important;
+}
+
+td{
+    word-wrap:break-word
+}
+
+
+.paragraph .form-horizontal .form-group {
+    margin-right: 0px !important;
+    margin-left: 0px !important;
+}
+
+#list2 { width:320px; }
+#list2 ol { font-style:italic; font-family:Georgia, Times, serif; font-size:18px; color:#337ab7;  }
+#list2 ol li { }
+#list2 ol li p { padding:8px; font-style:normal; font-family:Arial; font-size:13px; color:black; border-left: 1px solid #999; }
+#list2 ol li.applied p em { color:lightgray;  }
+#list2 ol li p em { display:block; }
+
+
+.qblabel {
+    font-style:italic; font-family:Georgia, Times, serif; font-size:18px; color:#337ab7; 
+}
+
+</style>
+<button type="button" class="btn btn-primary btn-md" onclick="showCurrentBrowser()">Local Broswer</button>
+<button type="button" class="btn btn-primary btn-md" onclick="showFutureBrowser();">Metadata Browser</button>
+<hr><hr>
+<div id="metadata-datasets" class="panel panel-default" style="display:none">
+
+  <div class="panel-body">
+  <table class="table">
+    <thead>
+      <tr>
+        <th data-field="title">Title</th>
+        <th data-field="description">Description</th>
+        <th data-field="contact-point">Contact Point</th>
+        <th data-field="publisher">Publisher</th>
+        <th data-field="keywords">Keywords</th>
+      </tr>
+    </thead>
+    <tbody id="fab2">
+    </tbody>
+  </table>
+  
+  </div>
+</div>
+
+<div id="metadata-datasets-info" class="panel panel-default" style="display:none">
+
+  <div class="panel-body">
+  <table class="table">
+    <thead>
+      <tr>
+        <th data-field="loadlink"></th>
+        <th data-field="title">Title</th>
+        <th data-field="description">Description</th>
+        <th data-field="license">License</th>
+        <th data-field="fields">Fields</th>
+      </tr>
+    </thead>
+    <tbody id="datasets-info-table">
+    </tbody>
+  </table>
+  
+  </div>
+</div>
+
+<div id="cbrowser" style="display:none">
+   <div class="form-group">
+      <label style="width: 20%;" class="qblabel">Available Datasets</label>
+      <div style="display: inline-block;width: 70%;">
+         <select style="margin-left:4px !important;" id="datasetSelect" class="form-control" >
+         </select> 
+      </div>
+      <button type="button" class="btn btn-primary btn-md" onclick="selectDataset()"> Apply </button>
+   </div>
+   <div class="form-group">
+      <label style="width: 20%;" class="qblabel">Available Files</label>
+      <div style="display: inline-block;width: 70%;">
+         <select style="margin-left:4px !important;" id="fileSelect" class="form-control" >
+         </select> 
+      </div>
+   </div>
+   <div class="form-group">
+      <label style="width: 20%;" class="qblabel">CSV Separator</label>
+      <div style="display: inline-block;width: 70%;">
+         <select style="margin-left:4px !important;" id="sepSelect" class="form-control" >
+            <option value=",">,</option>
+            <option value=";">;</option>
+         </select>
+      </div>
+      <button type="button" class="btn btn-primary btn-md" onclick="selectDatafile()"> Apply </button>
+   </div>
+</div>
+<hr><hr>
+<div>
+<div class="form-horizontal" id="null-filterType" style="display:none;">
+    <div class="form-group">
+        <label style="width: 20%;text-align:left;" class="control-label col-sm-2 qblabel" for="file">Available actions</label>
+        <div class="col-sm-10" style="display: inline-block;width: 70%;">
+            <select style="margin-left:4px !important;" class="form-control" id="filterType" onchange="divVisibilityChanged()" >
+                <option value=""></option>
+                <option disabled>-------- Basic --------</option>
+                <option value="filter">Filter</option>
+                <option value="orderBy">Order By</option>
+                <option value="select">Select column(s)</option>
+                <option value="drop">Drop column(s)</option>
+                <option value="withColumnRenamed">Rename Column</option>
+                <option disabled>------ Aggregations ------</option>
+                <option value="count">Count</option>
+                <option value="min">Min</option>
+                <option value="max">Max</option>
+                <option value="avg">Average</option>
+                <option value="sum">Sum</option>
+                <option disabled>------- Cleansing -------</option>
+                <option value="fillna">Fill N/A with value</option>
+                <option value="isnan">Check if NaN</option>
+                <option value="isnull">Check if null</option>
+                <option value="replace">Replace value</option>
+                <option value="ltrim">Left Trim a Column</option>
+                <option value="rtrim">Right Trim a Column</option>
+                <option disabled value="linear_interp">Fill N/A with linear interpolation</option>
+                <option disabled>--------- Joins ---------</option>
+                <option value="join">Join with master</option>
+                <option value="joinApproxTime">Join with master on approximate time</option>
+                <option disabled>------- Time Conversions ------</option>
+                <option value="year">Add Year Colum</option>
+                <option value="quarter">Add Quarter Column</option>
+                <option value="month">Add Month Column</option>
+                <option value="hour">Add Hour Column</option>
+                <option value="minute">Add Minute Column</option>
+                <option value="to_date">Convert to date</option>
+                <option value="unix_timestamp">Convert to UNIX timestamp</option>
+                <option value="ytrunc">Truncate date to year</option>
+                <option value="mtrunc">Truncate date to month</option>
+                <option value="dayofyear">Add dayOfYear column</option>
+                <option value="dayofmonth">Add dayOfMonth column</option>
+                <option value="datediff">Number of days between dates</option>
+                <option value="months_between">Number of months between dates</option>
+                <option disabled>--------- Math ---------</option>
+                <option value="sqrt">Add Square Root Column</option>
+                <option value="round">Add Round Column</option>
+                <option disabled>--------- Other ---------</option>
+                <option value="col_operation_1">Add column - based on other column </option>
+                <option value="col_operation_2">Add column - combine two columns </option>
+                <option value="when_1">Add column - column-based condition</option>
+                <option value="when_2">Add column - column-based condition & value</option>
+                <option value="when_3">Add column - column-based condition & columns-combination value</option>
+                <option disabled value="replace_extract">Replace based on regexp</option>
+            </select>
+        </div>
+    </div>
+    <!--
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button class="btn btn-primary" id="filters-done" onclick="applyAllFilters();"> Done </button>
+            <button class="btn btn-danger" id="reset-filters" onclick="resetAllFilters();"> Reset </button>
+        </div>
+    </div>
+    -->
+</div>
+<div class="form-horizontal" id="filterType_filter" style="display:none" >
+    <h3>Filter</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector" >
+                <option></option>
+                <option value="<">&lt;</option>
+                <option value="==">=</option>
+                <option value=">">&gt;</option>
+                <option value="!=">!=</option>
+                <option value="like">starts with</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_col_operation_1" style="display:none" >
+    <h3>Create column from an existing</h3>
+    <h4>Compute new value</h4>
+    <h4>-only numeric operations currently supported-</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector" >
+                <option></option>
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value operation-value" />
+        </div>
+    </div>
+    <h4>New Column Name</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value new-col-name" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_col_operation_2" style="display:none" >
+    <h3>Create column from two existing columns</h3>
+    <h4>Compute new value</h4>
+    <h4>-only numeric operations currently supported-</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column temp-column-A" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector" >
+                <option></option>
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column temp-column-B" >
+            </select>
+        </div>
+    </div>
+    <h4>New Column Name</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value new-col-name" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_when_1" style="display:none" >
+    <h3>When-Then-Else</h3>
+    <h4>Condition (When)</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column when-div" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector when-div" >
+                <option></option>
+                <option value="<">&lt;</option>
+                <option value="==">=</option>
+                <option value=">">&gt;</option>
+                <option value="!=">!=</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value when-div" />
+        </div>
+    </div>
+    <h4>Value (Then)</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value then-div" />
+        </div>
+    </div>
+    <h4>Alternative Value (Else)</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Alt Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value else-div" />
+        </div>
+    </div>
+    <h4>New Column Name</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value new-col-name" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_when_2" style="display:none" >
+    <h3>When-Then-Else</h3>
+    <h4>Condition (When)</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column when-div temp-column-A" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector when-div" >
+                <option></option>
+                <option value="<">&lt;</option>
+                <option value="==">=</option>
+                <option value=">">&gt;</option>
+                <option value="!=">!=</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value when-div" />
+        </div>
+    </div>
+    <h4>Value (Then)</h4>
+    <h4>-only numeric operations currently supported-</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column then-div temp-column-A" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector then-div" >
+                <option></option>
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value then-div" />
+        </div>
+    </div>
+    <h4>Alternative Value (Else)</h4>
+    <h4>-only numeric operations currently supported-</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column else-div temp-column-A" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector else-div" >
+                <option></option>
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Alt Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value else-div" />
+        </div>
+    </div>
+    <h4>New Column Name</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value new-col-name" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_when_3" style="display:none" >
+    <h3>When-Then-Else</h3>
+    <h4>Condition (When)</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column when-div" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector when-div" >
+                <option></option>
+                <option value="<">&lt;</option>
+                <option value="==">=</option>
+                <option value=">">&gt;</option>
+                <option value="!=">!=</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value when-div" />
+        </div>
+    </div>
+    <h4>Value (Then)</h4>
+    <h4>-only numeric operations currently supported-</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column then-div temp-column-A" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector then-div" >
+                <option></option>
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column then-div temp-column-B" >
+            </select>
+        </div>
+    </div>
+    <h4>Alternative Value (Else)</h4>
+    <h4>-only numeric operations currently supported-</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column else-div temp-column-A" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Operator</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector else-div" >
+                <option></option>
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column else-div temp-column-B" >
+            </select>
+        </div>
+    </div>
+    <h4>New Column Name</h4>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value new-col-name" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_orderBy" style="display:none" >
+    <h3>Order By</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Sort</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector">
+                <option value="1">Asc</option>
+                <option value="0">Desc</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_count" style="display:none">
+    <h3>Count</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Group By</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column"  >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_ltrim" style="display:none">
+    <h3>Left Trim</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column"  >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_rtrim" style="display:none">
+    <h3>Right Trim</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column"  >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_isnan" style="display:none">
+    <h3>Is NaN</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column"  >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_isnull" style="display:none">
+    <h3>Is Null</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column"  >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_min" style="display:none">
+    <h3>Min</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Columns</label>
+        <div class="col-sm-10">
+            <select multiple class="form-control multiple-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Group By</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column"  >
+            </select>
+        </div>
+    </div>
+
+</div>
+
+<div class="form-horizontal" id="filterType_max" style="display:none">
+    <h3>Max</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Columns</label>
+        <div class="col-sm-10">
+            <select multiple class="form-control multiple-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Group By</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_avg" style="display:none">
+    <h3>Average</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Columns</label>
+        <div class="col-sm-10">
+            <select multiple class="form-control multiple-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Group By</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_sum" style="display:none" >
+    <h3>Sum</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Columns</label>
+        <div class="col-sm-10">
+            <select multiple class="form-control multiple-column-selector temp-column" >                
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Group By</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_year" style="display:none" >
+    <h3>Create Year Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_quarter" style="display:none" >
+    <h3>Create Quarter Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_month" style="display:none" >
+    <h3>Create Month Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_hour" style="display:none" >
+    <h3>Create Hour Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_minute" style="display:none" >
+    <h3>Create Minute Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_dayofmonth" style="display:none" >
+    <h3>Create Day of Month Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_dayofyear" style="display:none" >
+    <h3>Create Day of Year Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_to_date" style="display:none" >
+    <h3>Create Date Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_unix_timestamp" style="display:none" >
+    <h3>Create UNIX Timestamp Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_ytrunc" style="display:none" >
+    <h3>Truncate Date Column to Year</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_mtrunc" style="display:none" >
+    <h3>Truncate Date Column to Month</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_datediff" style="display:none" >
+    <h3>Create DateDiff Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column A</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column temp-column-A" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column B</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column temp-column-B" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_months_between" style="display:none" >
+    <h3>Create MonthsDiff Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column A</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column temp-column-A" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Date Column B</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column temp-column-B" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_sqrt" style="display:none" >
+    <h3>Create SQRT Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Select Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_round" style="display:none" >
+    <h3>Create Rounded Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Select Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Name of New Column</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value col-name" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Number of Decimal Places</label>
+        <div class="col-sm-10">
+            <input type="number" step="1" class="form-control user-defined-value int-input" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_select" style="display:none" >
+    <h3>Select Columns</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Columns</label>
+        <div class="col-sm-10">
+            <select multiple class="form-control multiple-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_drop" style="display:none">
+    <h3>Select Columns</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Columns</label>
+        <div class="col-sm-10">
+            <select multiple class="form-control multiple-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_fillna" style="display:none" >
+    <h3>Fill N/A</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_replace" style="display:none" >
+    <h3>Replace Value</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+                <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Current Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value existing-value" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">To-Be Value</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value to-be-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_withColumnRenamed" style="display:none" >
+    <h3>Rename Column</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-column" >
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">New Name</label>
+        <div class="col-sm-10">
+            <input class="form-control user-defined-value" />
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_join" style="display:none" >
+    <h3>Join</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Join Type</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector" >
+                <option value="inner">inner</option>
+                <option value="outer">outer</option>
+                <option value="left_outer">left_outer</option>
+                <option value="right_outer">right_outer</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Master Column 1</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector master-column master-col-1">
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Temp Column 1</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-col-1 temp-column empty-option-allowed" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Master Column 2 (opt) </label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector master-column master-col-2" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Temp Column 2 (opt) </label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-col-2 temp-column empty-option-allowed"  >
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Master Column 3 (opt) </label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector master-column master-col-3" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Temp Column 3 (opt) </label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-col-3 temp-column empty-option-allowed" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="filterType_joinApproxTime" style="display:none">
+    <h3>Join on closest time</h3>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Join Type</label>
+        <div class="col-sm-10">
+            <select class="form-control operator-selector" >
+                <option value="inner">inner</option>
+                <option value="outer">outer</option>
+                <option value="left_outer">left_outer</option>
+                <option value="right_outer">right_outer</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Master Time Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector master-column master-time-col" >
+                <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Temp Time Column</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-time-col temp-column empty-option-allowed" >
+                <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Master Column 1</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector master-column master-col-1" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Temp Column 1</label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-col-1 temp-column empty-option-allowed" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Master Column 2 (opt) </label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector master-column master-col-2" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Temp Column 2 (opt) </label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-col-2 temp-column empty-option-allowed" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Master Column 3 (opt) </label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector master-column master-col-3" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="file">Temp Column 3 (opt) </label>
+        <div class="col-sm-10">
+            <select class="form-control single-column-selector temp-col-3 temp-column empty-option-allowed" >
+            <option></option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div id="filter-control-buttons" style="display:none">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button class="btn btn-primary btn-sm" onclick="addFilter();"> OK </button>
+            <button class="btn btn-warning btn-sm" onclick="cancelFilter()"> Cancel </button>
+        </div>
+        <hr><hr>
+
+    </div>
+
+<div id="list2"><ol id="show-filters"></ol></div>
+    
+<div id="filter-application-buttons" style="display:none" align="right">
+<button type="button" class="btn btn-success btn-sm" onclick="applyAllFilters();"> Apply Filters </button>
+<button type="button" class="btn btn-success btn-sm" onclick="Jupyter.notebook.execute_cells([4]);"> Refresh temp </button>
+<button type="button" class="btn btn-danger btn-sm" onclick="tempToMaster();">Save temp as master</button>
+<button type="button" class="btn btn-success btn-sm" onclick="Jupyter.notebook.execute_cells([6]);"> Refresh master </button>
+<button type="button" class="btn btn-success btn-sm" onclick="document.getElementById('save_conf').style.display = 'block';">Save master to CSV</button>
+<button type="button" class="btn btn-success btn-sm" onclick="Jupyter.notebook.execute_cells([8]);"> Update Query Output </button>
+</div>
+
+
+<div id="save_conf" style="display:none">
+<h3>Save Configuration</h3>
+  <div class="form-group">
+              <label style="width: 20%;" class="qblabel">Select Dataset</label>
+              <div style="display: inline-block;width: 70%;">
+                <select style="margin-left:4px !important;" id="datasetSaveSelect" class="form-control" >
+                  
+                </select> 
+              </div>
+            </div>
+             <div class="form-group">
+              <label style="width: 20%;" class="qblabel">Result Folder Name</label>
+              <div style="display: inline-block;width: 70%;">
+                <input style="margin-left:4px !important;" id="folderNameSelect" class="form-control" >
+                  
+                </input> 
+              </div>
+            </div>
+            <div class="form-group">
+              <label style="width: 20%;" class="qblabel">Include Header</label>
+              <div style="display: inline-block;width: 70%;">
+            <input type="checkbox" id="saveHeaderCheckbox" value="with" checked>                   
+                </input> 
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-md" onclick="exportMaster();document.getElementById('save_conf').style.display = 'none';"> Save </button>
+            <button type="button" class="btn btn-danger btn-md" onclick="document.getElementById('save_conf').style.display = 'none';"> Cancel </button>
+
+</div>
+
+
+<script>
+
+var tempDF_columns = []
+var datafile_options = []
+var filter_divs = ["null-filterType","filterType_joinApproxTime","filterType_join",
+                   "filterType_year","filterType_withColumnRenamed","filterType_replace",
+                   "filterType_fillna","filterType_orderBy","filterType_count",
+                   "filterType_min","filterType_max","filterType_sum","filterType_ltrim",
+                   "filterType_rtrim","filterType_avg","filterType_filter",
+                   "filterType_select","filterType_drop","filterType_isnan",
+                  "filterType_isnull","filterType_quarter","filterType_month",
+                   "filterType_minute","filterType_hour","filterType_dayofmonth","filterType_dayofyear",
+                  "filterType_to_date","filterType_unix_timestamp","filterType_ytrunc","filterType_mtrunc",
+                  "filterType_datediff","filterType_months_between","filterType_sqrt","filterType_round",
+                  "filterType_when_1","filterType_when_2","filterType_when_3","filterType_col_operation_2",
+                  "filterType_col_operation_1"]
+var visibleDivId = null;
+var applied_filters = {}
+var filter_count = 0
+var successfulFilters=[]
+var successfulFiltersPermanent = [] <!-- temporary solution, to be removed -->
+var currentDFpath = ""
+
+function show_filters(){
+    $("#show-filters").empty()
+    $("#show-filters").append("<label class='qblabel'>Selected Filters</label>")
+    $.each( applied_filters, function( key, val ) {
+        if(successfulFiltersPermanent.includes(key)){
+            $("#show-filters").append( "<li id='" + key + "' class='applied'><p><em>" + val["descr"] + "</em></p></li>" );
+        }
+        else{
+            $("#show-filters").append( "<li id='" + key + "' class='notapplied'><p><em>" + val["descr"] + "</em></p></li>" );
+        }
+    });
+}
+
+function exportMaster(){
+    var kernel = IPython.notebook.kernel;
+    var callbacks = {
+        iopub : {
+             output : csvExported,
+        }
+    }
+    var folder = document.getElementById('folderNameSelect').value;
+    var dataset = document.getElementById('datasetSaveSelect').value;
+    var withHeader = 0;
+    if ($("#saveHeaderCheckbox").is(":checked")){
+        withHeader = 1;
+    }
+    path = dataset+"/"+folder
+    var msg_id = kernel.execute('saveMasterAsCSV("'+path+'",'+withHeader+')', callbacks);
+
+}
+
+<!-- call python to read file from hdfs, reset filter dropdown and populate column dropdowns -->
+function selectDatafile(){
+    var kernel = IPython.notebook.kernel;
+    var callbacks = {
+        iopub : {
+             output : handle_output,
+        }
+    }
+    dataset = document.getElementById('fileSelect').value;
+    currentDFpath = document.getElementById('fileSelect').value;
+    separator = document.getElementById('sepSelect').value;
+    var msg_id = kernel.execute('read_dataset("'+dataset+'","'+separator+'")', callbacks);
+    divVisibility("null-filterType");
+    document.getElementById("filter-application-buttons").style.display = "block"; //because now we have a tempDF
+    visibleDivId = null;
+    applied_filters = {}
+    filter_count = 0
+    $("#show-filters").empty()
+    successfulFilters = [];
+    successfulFiltersPermanent = [];
+}
+
+function selectDataset(){
+    var kernel = IPython.notebook.kernel;
+    var callbacks = {
+        iopub : {
+             output : getCSVfilesFromFS,
+        }
+    }
+    dataset = document.getElementById('datasetSelect').value;
+    var msg_id = kernel.execute('walk_dataset("'+dataset+'")', callbacks);
+}
+
+function getCSVfilesFromFS(data){
+    datafile_options = data.content.text;
+    datafilesObtained(JSON.parse(datafile_options.replace(/u\'/g,'"').replace(/\'/g,'"')))
+}
+
+<!-- add tempDF columns to the dropdown selectors -->
+function handle_output(data){
+    tempDF_columns = data.content.text;
+    addColumnFields(tempDF_columns);
+}
+
+function filters_applied_result(data){
+    successfulFilters = JSON.parse(data.content.text.replace(/\'/g,'"'))
+    for (var i = 0; i < successfulFilters.length; i++) {
+        var index = successfulFilters[i];
+        applied_filters[index]["executed"] = true;
+        successfulFiltersPermanent.push(index);
+    }
+    show_filters();
+    var kernel = IPython.notebook.kernel;
+    var callbacks = {
+        iopub : {
+             output : handle_output,
+        }
+    }
+    var msg_id = kernel.execute('getTempColumns()', callbacks);
+}
+
+function tempToMaster(){
+    var kernel = IPython.notebook.kernel;
+    var callbacks = {
+        iopub : {
+             output : masterDFupdated,
+        }
+    }
+    var msg_id = kernel.execute('tempDFtoMasterDF()', callbacks);
+}
+
+function csvExported(){
+    alert("CSV ready")
+}                                                             
+                                                             
+function masterDFupdated(data){
+    masterDF_columns = data.content.text;
+    addMasterColumnFields(masterDF_columns);
+    alert("The master Dataframe (masterDF) was changed successfully!")
+}
+                                                             
+function showFutureBrowser() {
+    var x = document.getElementById("metadata-datasets");
+    if (x.style.display === "none") {
+        document.getElementById("cbrowser").style.display = "none";
+        x.style.display = "block";
+        retrieve_datasets();
+    } else {
+        x.style.display = "none";
+    }
+    document.getElementById("metadata-datasets-info").style.display = "none";
+} 
+                                                             
+function populateAvailableDatasetsList(data){
+    $.get("/hopsworks-api/api/project/"+data.content.text+"/dataset/getContent", function(data,status){
+        var user_datasets = []
+        var x = document.getElementById("cbrowser");
+        if (x.style.display === "none") {
+            document.getElementById("metadata-datasets").style.display = "none";
+            document.getElementById("metadata-datasets-info").style.display = "none";
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+        skipthem = ["Jupyter","Logs","Models","notebook","Resources"]
+        data.forEach(function(element){
+            if(skipthem.includes(element.name) || element.name.endsWith(".db")){
+                return;
+            } 
+            user_datasets.push(element.path)
+        });
+        var dropl = document.getElementById("datasetSelect");
+        dropl.options.length = 0;
+        for (var i = 0; i < user_datasets.length; i++) { 
+            dropl.options[dropl.options.length] = new Option(user_datasets[i].substring(user_datasets[i].lastIndexOf("/")+1),user_datasets[i]);
+        }
+        var droplsave = document.getElementById("datasetSaveSelect");
+        droplsave.options.length = 0;
+        for (var i = 0; i < user_datasets.length; i++) { 
+            droplsave.options[droplsave.options.length] = new Option(user_datasets[i].substring(user_datasets[i].lastIndexOf("/")+1),user_datasets[i]);
+        }
+    })
+}
+                                                             
+                                                             
+function showCurrentBrowser() {
+    var x = document.getElementById("cbrowser");
+    if (x.style.display === "none") {
+        $.get("/hopsworks-api/api/project", function(data,status){
+            var pdict = {}
+            data.forEach(function(e){
+                pdict[e.project.name]=e.project.id;
+            });
+            var kernel = IPython.notebook.kernel;
+            var callbacks = {
+                iopub : {
+                    output : populateAvailableDatasetsList,
+                }
+            }
+            var pdict_parameter = (JSON.stringify(pdict))
+            var msg_id = kernel.execute('find_current_projectID(\''+pdict_parameter+'\')', callbacks);
+        })
+    } else {
+        x.style.display = "none";
+    }
+} 
+                                                             
+function datafilesObtained(options){
+    var dropl = document.getElementById("fileSelect");
+    dropl.options.length = 0;
+    for (opt in options) {
+        dropl.options[dropl.options.length] = new Option(options[opt]);
+    }
+}                                                             
+
+function divVisibilityChanged() {
+    enabled_filter = document.getElementById("filterType").value;
+    divid = "filterType_".concat(enabled_filter);
+    divVisibility(divid);
+}
+
+<!-- choose which of the forms will be visible -->
+function divVisibility(divId) {
+    visibleDivId = divId;
+    hideNonVisibleDivs();
+    
+    <!--
+    if(visibleDivId === divId) {
+        visibleDivId = null;
+      } 
+    else {
+        visibleDivId = divId;
+      }
+    -->
+}
+
+<!-- helper:called to choose which of the forms will be visible -->
+function hideNonVisibleDivs() {
+      var i, divId, div;
+      for(i = 0; i < filter_divs.length; i++) {
+        divId = filter_divs[i];
+        div = document.getElementById(divId);
+        if(visibleDivId === divId) {
+          div.style.display = "block";
+        } else {
+          div.style.display = "none";
+        }
+      }
+    if((visibleDivId != null) && (visibleDivId != "null-filterType")){
+        document.getElementById("filter-control-buttons").style.display = "block";
+    }
+    else{
+        document.getElementById("filter-control-buttons").style.display = "none";
+    }
+    
+}
+
+<!-- populate column dropdowns -->
+function addColumnFields(columns){
+    arraycols = JSON.parse(columns.replace(/\'/g,'"'))
+    $('.temp-column').each(function(index){
+        if($(this).hasClass("empty-option-allowed")){
+            $(this).children('option:not(:first)').remove();
+        }
+        else{
+            $(this).children('option').remove();
+        }
+        
+        for(var i = 0; i < arraycols.length; i++){
+            optionGenerator($(this),arraycols[i].trim());
+        }
+        
+    });
+    
+}
+                                           
+<!-- populate master column dropdowns -->
+function addMasterColumnFields(columns){
+    masterarraycols = JSON.parse(columns.replace(/\'/g,'"'))
+    $('.master-column').each(function(index){
+        $(this).children('option:not(:first)').remove();
+        for(var i = 0; i < masterarraycols.length; i++){
+            optionGenerator($(this),masterarraycols[i].trim());
+        }
+        
+    });                                             
+}
+
+function applyAllFilters(){
+    var kernel = IPython.notebook.kernel;
+    var callbacks = {
+        iopub : {
+             output : filters_applied_result,
+        }
+    }
+    agh = (JSON.stringify(applied_filters))
+    lala = {}
+    var msg_id = kernel.execute('apply_filters(\''+agh+'\')', callbacks);
+}
+
+function cancelFilter(){
+    divVisibility('null-filterType');
+    $("#filterType")[0].selectedIndex = 0;    
+}
+
+function addFilter(){
+    enabled_filter = document.getElementById("filterType").value;
+    filterObj = {}
+    filter_count++;
+    switch(enabled_filter){
+        case "filter":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_filter .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_filter .operator-selector").find(":selected").val())
+            parameters.push($("#filterType_filter .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "orderBy":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push([$("#filterType_orderBy .single-column-selector").find(":selected").val()])
+            parameters.push([Number($("#filterType_orderBy .operator-selector").find(":selected").val())])
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = parameters[0][0] + '(' + $("#filterType_orderBy .operator-selector").find(":selected").text() + ')'
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "count":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push([$("#filterType_count .single-column-selector").find(":selected").val()])
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Count [OrderBy:"+parameters[0][0]+"]"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "ltrim":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_ltrim .single-column-selector").find(":selected").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Left trim [Column:"+parameters[0]+"]"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "rtrim":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_rtrim .single-column-selector").find(":selected").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Right trim [Column:"+parameters[0]+"]"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "isnan":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_isnan .single-column-selector").find(":selected").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Is NaN [Column:"+parameters[0]+"]"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "isnull":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_isnull .single-column-selector").find(":selected").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Is Null [Column:"+parameters[0]+"]"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "select":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            param_array = $("#filterType_select .multiple-column-selector option:selected").map(function(){ return this.value }).get();
+            parameters.push(param_array);
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Select ["+parameters.toString()+"]"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "drop":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            param_array = $("#filterType_drop .multiple-column-selector option:selected").map(function(){ return this.value }).get();
+            parameters.push(param_array);
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Drop ["+parameters.toString()+"]"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "min":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push([$("#filterType_min .single-column-selector").find(":selected").val()])
+            cols_array = $("#filterType_min .multiple-column-selector option:selected").map(function(){ return this.value }).get();
+            parameters.push(cols_array);
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Min ("+parameters[1].toString()+") - Group by "+parameters[0][0]
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "max":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push([$("#filterType_max .single-column-selector").find(":selected").val()])
+            cols_array = $("#filterType_max .multiple-column-selector option:selected").map(function(){ return this.value }).get();
+            parameters.push(cols_array);
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Max ("+parameters[1].toString()+") - Group by "+parameters[0][0]
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "sum":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push([$("#filterType_sum .single-column-selector").find(":selected").val()])
+            cols_array = $("#filterType_sum .multiple-column-selector option:selected").map(function(){ return this.value }).get();
+            parameters.push(cols_array);
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Sum ("+parameters[1].toString()+") - Group by "+parameters[0][0]
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "avg":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push([$("#filterType_avg .single-column-selector").find(":selected").val()])
+            cols_array = $("#filterType_avg .multiple-column-selector option:selected").map(function(){ return this.value }).get();
+            parameters.push(cols_array);
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Average ("+parameters[1].toString()+") - Group by "+parameters[0][0]
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "year":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_year .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_year .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New Year Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "quarter":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_quarter .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_quarter .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New Quarter Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "month":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_month .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_month .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New Month Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "hour":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_hour .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_hour .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New Hour Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "minute":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_minute .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_minute .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New Minute Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "dayofmonth":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_dayofmonth .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_dayofmonth .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New MonthDay Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "dayofyear":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_dayofyear .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_dayofyear .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New YearDay Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "to_date":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_to_date .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_to_date .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New Date Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "unix_timestamp":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_unix_timestamp .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_unix_timestamp .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New UNIX timestamp Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "sqrt":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_sqrt .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_sqrt .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New SQRT Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "round":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_round .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_round .int-input").val().toString())
+            parameters.push($("#filterType_round .col-name").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "New round Col:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "ytrunc":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_ytrunc .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_ytrunc .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Year Trunc:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "mtrunc":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_mtrunc .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_mtrunc .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Month Trunc:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "datediff":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_datediff .temp-column-A").find(":selected").val())
+            parameters.push($("#filterType_datediff .temp-column-B").find(":selected").val())
+            parameters.push($("#filterType_datediff .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "DateDiff:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "months_between":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_months_between .temp-column-A").find(":selected").val())
+            parameters.push($("#filterType_months_between .temp-column-B").find(":selected").val())
+            parameters.push($("#filterType_months_between .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "MonthDiff:"+parameters.toString();
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "col_operation_1":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_col_operation_1 .temp-column").find(":selected").val())
+            parameters.push($("#filterType_col_operation_1 .operator-selector").find(":selected").val())
+            parameters.push($("#filterType_col_operation_1 .user-defined-value.operation-value").val())
+            parameters.push($("#filterType_col_operation_1 .user-defined-value.new-col-name").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Add column:"+parameters.slice(0,3).toString()+" ("+parameters[3].toString()+")";
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "col_operation_2":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_col_operation_2 .temp-column-A").find(":selected").val())
+            parameters.push($("#filterType_col_operation_2 .operator-selector").find(":selected").val())
+            parameters.push($("#filterType_col_operation_2 .temp-column-B").find(":selected").val())
+            parameters.push($("#filterType_col_operation_2 .user-defined-value.new-col-name").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Add column:"+parameters.slice(0,3).toString()+" ("+parameters[3].toString()+")";
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "when_1":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_when_1 .temp-column.when-div").find(":selected").val())
+            parameters.push($("#filterType_when_1 .operator-selector.when-div").find(":selected").val())
+            parameters.push($("#filterType_when_1 .user-defined-value.when-div").val())
+            parameters.push($("#filterType_when_1 .user-defined-value.then-div").val())
+            parameters.push($("#filterType_when_1 .user-defined-value.else-div").val())
+            parameters.push($("#filterType_when_1 .user-defined-value.new-col-name").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "When:"+parameters.slice(0,3).toString()+" Then:"+parameters[3].toString()+" Else:"+parameters[4].toString()+"("+parameters[5].toString()+")";
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "when_2":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_when_2 .temp-column.when-div").find(":selected").val())
+            parameters.push($("#filterType_when_2 .operator-selector.when-div").find(":selected").val())
+            parameters.push($("#filterType_when_2 .user-defined-value.when-div").val())
+            parameters.push($("#filterType_when_2 .temp-column.then-div").find(":selected").val())
+            parameters.push($("#filterType_when_2 .operator-selector.then-div").find(":selected").val())
+            parameters.push($("#filterType_when_2 .user-defined-value.then-div").val())
+            parameters.push($("#filterType_when_2 .temp-column.else-div").find(":selected").val())
+            parameters.push($("#filterType_when_2 .operator-selector.else-div").find(":selected").val())
+            parameters.push($("#filterType_when_2 .user-defined-value.else-div").val())
+            parameters.push($("#filterType_when_2 .user-defined-value.new-col-name").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "When:"+parameters.slice(0,3).toString()+" Then:"+parameters.slice(3,6).toString()+" Else:"+parameters.slice(6,9).toString()+"("+parameters[9].toString()+")";
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "when_3":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_when_3 .temp-column.when-div").find(":selected").val())
+            parameters.push($("#filterType_when_3 .operator-selector.when-div").find(":selected").val())
+            parameters.push($("#filterType_when_3 .user-defined-value.when-div").val())
+            parameters.push($("#filterType_when_3 .temp-column-A.then-div").find(":selected").val())
+            parameters.push($("#filterType_when_3 .operator-selector.then-div").find(":selected").val())
+            parameters.push($("#filterType_when_3 .temp-column-B.then-div").find(":selected").val())
+            parameters.push($("#filterType_when_3 .temp-column-A.else-div").find(":selected").val())
+            parameters.push($("#filterType_when_3 .operator-selector.else-div").find(":selected").val())
+            parameters.push($("#filterType_when_3 .temp-column-B.else-div").find(":selected").val())
+            parameters.push($("#filterType_when_3 .user-defined-value.new-col-name").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "When:"+parameters.slice(0,3).toString()+" Then:"+parameters.slice(3,6).toString()+" Else:"+parameters.slice(6,9).toString()+"("+parameters[9].toString()+")";
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "fillna":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            pdict={}
+            col = $("#filterType_fillna .single-column-selector").find(":selected").val();
+            newv = $("#filterType_fillna .user-defined-value").val();
+            pdict[col] = newv
+            parameters.push(pdict)
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = col + ":Fill n/a with "+newv;
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "replace":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push([$("#filterType_replace .user-defined-value.existing-value").val()])
+            parameters.push([$("#filterType_replace .user-defined-value.to-be-value").val()])
+            parameters.push($("#filterType_replace .single-column-selector").find(":selected").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = parameters[2] + " [" + parameters[0][0] + " --> " + parameters[1][0] + "]"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "withColumnRenamed":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            parameters.push($("#filterType_withColumnRenamed .single-column-selector").find(":selected").val())
+            parameters.push($("#filterType_withColumnRenamed .user-defined-value").val())
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = "Rename " + parameters[0] + " to " + parameters[1]
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "join":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            operator = $("#filterType_join .operator-selector").find(":selected").val()
+            tempCol1 = $("#filterType_join .single-column-selector.temp-col-1").find(":selected").val()
+            tempCol2 = $("#filterType_join .single-column-selector.temp-col-2").find(":selected").val() || null
+            tempCol3 = $("#filterType_join .single-column-selector.temp-col-3").find(":selected").val() || null
+            masterCol1 = $("#filterType_join .single-column-selector.master-col-1").find(":selected").val()
+            masterCol2 = $("#filterType_join .single-column-selector.master-col-2").find(":selected").val() || null
+            masterCol3 = $("#filterType_join .single-column-selector.master-col-3").find(":selected").val() || null
+            parameters.push(operator)
+            parameters.push([masterCol1, tempCol1])
+            parameters.push([masterCol2, tempCol2])
+            parameters.push([masterCol3, tempCol3])
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = operator + "join: (" + masterCol1 + ","+ tempCol1 + ")" + "(" + masterCol2 + "," + tempCol2 + ")" +"(" + masterCol3 + "," + tempCol3 + ")"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+        case "joinApproxTime":{
+            filterObj["type"] = enabled_filter
+            filterObj["executed"] = false
+            parameters = []
+            operator = $("#filterType_joinApproxTime .operator-selector").find(":selected").val()
+            tempTimeCol = $("#filterType_joinApproxTime .single-column-selector.temp-time-col").find(":selected").val()
+            masterTimeCol = $("#filterType_joinApproxTime .single-column-selector.master-time-col").find(":selected").val()
+            tempCol1 = $("#filterType_joinApproxTime .single-column-selector.temp-col-1").find(":selected").val()
+            tempCol2 = $("#filterType_joinApproxTime .single-column-selector.temp-col-2").find(":selected").val() || null
+            tempCol3 = $("#filterType_joinApproxTime .single-column-selector.temp-col-3").find(":selected").val() || null
+            masterCol1 = $("#filterType_joinApproxTime .single-column-selector.master-col-1").find(":selected").val()
+            masterCol2 = $("#filterType_joinApproxTime .single-column-selector.master-col-2").find(":selected").val() || null
+            masterCol3 = $("#filterType_joinApproxTime .single-column-selector.master-col-3").find(":selected").val() || null
+            parameters.push(operator)
+            parameters.push([masterCol1, tempCol1])
+            parameters.push([masterCol2, tempCol2])
+            parameters.push([masterCol3, tempCol3])
+            parameters.push([masterTimeCol,tempTimeCol])
+            filterObj["parameters"] = parameters
+            filterObj["descr"] = operator + "approx time join on ["+masterTimeCol + ","+ tempTimeCol+"]: (" + masterCol1 + ","+ tempCol1 + ")" + "(" + masterCol2 + "," + tempCol2 + ")" +"(" + masterCol3 + "," + tempCol3 + ")"
+            applied_filters[filter_count.toString()] = filterObj;
+            break;
+        }
+    }
+    show_filters();
+    divVisibility('null-filterType');
+    $("#filterType")[0].selectedIndex = 0;
+
+}
+
+function resetAllFilters(){
+    applied_filters = []
+    filter_count = 0
+}
+
+<!-- helper: adds options to help populate column dropdowns -->
+function optionGenerator(instance,paramObj){  
+    instance
+    .append($("<option></option>")
+            .attr("value",paramObj)
+            .text(paramObj));
+};
+</script>
+                                                 
+                                                 <script>
+var k=0;
+function handle_datasets_output(data){
+    available_datasets = data.content;
+    available_datasets = JSON.parse(available_datasets.text.slice(2,-1));
+    $("#fab2").empty();
+    
+    $.each( available_datasets["results"], function( key, val ) {
+        var keywords = ""
+        for(i = 0; i < val["keywords"].length; i++) {
+            keywords = keywords + ("<span class='label label-default'>"+val["keywords"][i]+"</span>");
+        }
+        $("#fab2").append("<tr>\
+        <td><button type='button' class='btn btn-primary btn-xs' style='width:100%' onclick='getRequestedDataset(\""+val["name"]+"\");'>"+val["name"]+"</button></td>\
+        <td>" + val["description"]+"</td>\
+        <td>" + val["contact_point"]["name"]+" ("+val["contact_point"]["email"]+")</td>\
+        <td><a href='"+ val["publisher"]["homepage"]+"'>"+val["publisher"]["name"]+"</a></td>\
+        <td>" + keywords + "</td>\
+        </tr>");
+    });
+    $("#metadata-datasets").show();
+}
+
+function handle_dataset_retrieval(data){
+    dataset = data.content;
+    dataset = JSON.parse(dataset.text.slice(2,-1));
+    $("#datasets-info-table").empty();
+    
+    $.each( dataset["results"], function( key, val ) {
+        var fields = ""
+        for(i = 0; i < val["fields"].length; i++) {
+            fields = fields + val["fields"][i]["name"] + "(" + val["fields"][i]["type"] + "):" + val["fields"][i]["description"] + "<br>"
+        }
+        $("#datasets-info-table").append("<tr>\
+        <td><button type='button' class='btn btn-primary btn-xs' style='width:100%' onclick='readRequestedDataset(\""+val["access_url"]+"\");'>Open</button></td>\
+        <td>" + val["title"]+"</td>\
+        <td>" + val["description"]+"</td>\
+        <td>" + val["license"]+"</td>\
+        <td class='fieldcell'>" + fields + "</td>\
+        </tr>");
+    });
+    $("#metadata-datasets-info").show();
+    $("#metadata-datasets").hide();
+}
+
+function handle_dataset_loading(data){
+    response = data.content.text;
+    if(response=="500"){
+        alert("Oops! Something went wrong: cannot read file.")
+    }
+    else{
+        addColumnFields(tempDF_columns);
+    }
+}
+
+function retrieve_datasets(){
+    var kernel = IPython.notebook.kernel;
+    var callbacks = {
+        iopub : {
+             output : handle_datasets_output,
+        }
+    }
+    var msg_id = kernel.execute('get_datasets()', callbacks);
+}
+
+function getRequestedDataset(dataset_name){
+    var kernel = IPython.notebook.kernel;
+    var callbacks = {
+        iopub : {
+             output : handle_dataset_retrieval,
+        }
+    }
+    var msg_id = kernel.execute('get_dataset("'+dataset_name+'")', callbacks); 
+}
+
+function readRequestedDataset(dataset_uri){
+    var kernel = IPython.notebook.kernel;
+    var callbacks = {
+        iopub : {
+             output : handle_dataset_loading,
+        }
+    }
+    var msg_id = kernel.execute('read_dataset_fromMetadata("'+dataset_uri+'")', callbacks);
+    divVisibility("null-filterType");
+    document.getElementById("filter-application-buttons").style.display = "block"; //because now we have a tempDF
+    visibleDivId = null;
+    applied_filters = {}
+    filter_count = 0
+    $("#show-filters").empty()
+    successfulFilters = [];
+    successfulFiltersPermanent = [];
+}
+
+</script>
