@@ -1,1186 +1,1305 @@
 %%html
 <!-- P2 -->
+<div class="aegis">
+    <div id="cbrowser">
+        <div class="form-group row form-horizontal">
+            <label class="col-sm-2 control-label">Available Datasets:</label>
+            <div class="col-sm-10">
+                <div class="input-group widget-dropdown">
+                    <select id="datasetSelect" class="form-control">
+                    </select>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn jupyter-button mod-primary" onclick="selectDataset()"> Open
+                            dataset
+                        </button>
+                        <button type="button" class="btn jupyter-button mod-primary" onclick="showCurrentBrowser()">
+                            Refresh list 
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row form-horizontal">
+            <label class="col-sm-2 control-label">Available Files:</label>
+            <div class="col-sm-10">
+                <div class="widget-dropdown">
+                    <select id="fileSelect" class="form-control">
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row form-horizontal">
+            <label class="col-sm-2 control-label">CSV Separator:</label>
+            <div class="col-sm-4">
+                <div class="widget-dropdown">
+                    <select id="sepSelect" class="form-control">
+                        <option value=",">Comma (,)</option>
+                        <option value=";">Semicolon (;)</option>
+                    </select>
+                </div>
+            </div>
+            <label class="col-sm-2 control-label">Encoding:</label>
+            <div class="col-sm-4">
+                <div class="widget-dropdown">
+                    <select id="encSelect" class="form-control">
+                        <option data-value="auto" value="auto">Auto</option>
+                        <option data-value="ascii" value="ascii">ASCII</option>
+                        <option data-value="utf_8" value="utf_8">UTF-8</option>
+                        <option data-value="utf_8_sig" value="utf_8_sig">UTF-8 with BOM</option>
+                        <option data-value="cp1252" value="cp1252">Windows-1252</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row form-horizontal">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button"
+                    onclick="selectDatafile()"> Open file </button>
+            </div>
+        </div>
+    </div>
+    <hr>
 
-<style>
+    <div id="filters">
+        <div class="form-group row form-horizontal" id="null-filterType" style="display:none;">
+            <label class="col-sm-2 control-label">Available actions:</label>
+            <div class="col-sm-10">
+                <div class="widget-dropdown">
+                    <select id="filterType" class="form-control" id="filterType" onchange="divVisibilityChanged()">
+                        <option value=""></option>
+                        <option disabled>-------- Basic --------</option>
+                        <option value="filter">Filter</option>
+                        <option value="orderBy">Order By</option>
+                        <option value="select">Select column(s)</option>
+                        <option value="drop">Drop column(s)</option>
+                        <option value="withColumnRenamed">Rename Column</option>
+                        <option disabled>------ Aggregations ------</option>
+                        <option value="count">Count</option>
+                        <option value="min">Min</option>
+                        <option value="max">Max</option>
+                        <option value="avg">Average</option>
+                        <option value="sum">Sum</option>
+                        <option disabled>------- Cleansing -------</option>
+                        <option value="fillna">Fill N/A with value</option>
+                        <option value="isnan">Check if NaN</option>
+                        <option value="isnull">Check if null</option>
+                        <option value="replace">Replace value</option>
+                        <option value="ltrim">Left Trim a Column</option>
+                        <option value="rtrim">Right Trim a Column</option>
+                        <option disabled value="linear_interp">Fill N/A with linear interpolation</option>
+                        <option disabled>--------- Joins ---------</option>
+                        <option value="join">Join with master</option>
+                        <option value="joinApproxTime">Join with master on approximate time</option>
+                        <option disabled>------- Time Conversions ------</option>
+                        <option value="year">Add Year Colum</option>
+                        <option value="quarter">Add Quarter Column</option>
+                        <option value="month">Add Month Column</option>
+                        <option value="hour">Add Hour Column</option>
+                        <option value="minute">Add Minute Column</option>
+                        <option value="to_date">Convert to date</option>
+                        <option value="unix_timestamp">Convert to UNIX timestamp</option>
+                        <option value="ytrunc">Truncate date to year</option>
+                        <option value="mtrunc">Truncate date to month</option>
+                        <option value="dayofyear">Add dayOfYear column</option>
+                        <option value="dayofmonth">Add dayOfMonth column</option>
+                        <option value="datediff">Number of days between dates</option>
+                        <option value="months_between">Number of months between dates</option>
+                        <option disabled>--------- Math ---------</option>
+                        <option value="sqrt">Add Square Root Column</option>
+                        <option value="round">Add Round Column</option>
+                        <option disabled>--------- Other ---------</option>
+                        <option value="col_operation_1">Add column - based on other column </option>
+                        <option value="col_operation_2">Add column - combine two columns </option>
+                        <option value="when_1">Add column - column-based condition</option>
+                        <option value="when_2">Add column - column-based condition & value</option>
+                        <option value="when_3">Add column - column-based condition & columns-combination value</option>
+                        <option disabled value="replace_extract">Replace based on regexp</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
+        <div id="filterType_filter" style="display:none">
+            <h3>Filter</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector">
+                            <option></option>
+                            <option value="<">&lt;</option>
+                            <option value="==">=</option>
+                            <option value=">">&gt;</option>
+                            <option value="!=">!=</option>
+                            <option value="like">starts with</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
 
+        <div id="filterType_col_operation_1" style="display:none">
+            <h3>Create column from an existing</h3>
+            <h4>Compute new value <span>-only numeric operations supported</span></h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector">
+                            <option></option>
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                            <option value="*">*</option>
+                            <option value="/">/</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value operation-value" />
+                </div>
+            </div>
+            <h4>New Column Name</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value new-col-name" />
+                </div>
+            </div>
+        </div>
 
-.tagclass {
-    background:grey;
-    border:none;
-}
-.fieldcell{
-    white-space:pre-wrap;
-}
-td{
-  text-align:left;
-}
-
-table{
-    table-layout: auto !important;
-}
-
-td{
-    word-wrap:break-word
-}
-
-
-.paragraph .form-horizontal .form-group {
-    margin-right: 0px !important;
-    margin-left: 0px !important;
-}
-
-#list2 { width:320px; }
-#list2 ol { font-style:italic; font-family:Georgia, Times, serif; font-size:18px; color:#337ab7;  }
-#list2 ol li { }
-#list2 ol li p { padding:8px; font-style:normal; font-family:Arial; font-size:13px; color:black; border-left: 1px solid #999; }
-#list2 ol li.applied p em { color:lightgray;  }
-#list2 ol li p em { display:block; }
-
-
-.qblabel {
-    font-style:italic; font-family:Georgia, Times, serif; font-size:18px; color:#337ab7; 
-}
-
-</style>
-<button type="button" class="btn btn-primary btn-md" onclick="showCurrentBrowser()">Refresh Broswer</button>
-
-
-<div id="cbrowser" >
-   <div class="form-group">
-      <label style="width: 20%;" class="qblabel">Available Datasets</label>
-      <div style="display: inline-block;width: 70%;">
-         <select style="margin-left:4px !important;" id="datasetSelect" class="form-control" >
-         </select> 
-      </div>
-      <button type="button" class="btn btn-primary btn-md" onclick="selectDataset()"> Apply </button>
-   </div>
-   <div class="form-group">
-      <label style="width: 20%;" class="qblabel">Available Files</label>
-      <div style="display: inline-block;width: 70%;">
-         <select style="margin-left:4px !important;" id="fileSelect" class="form-control" >
-         </select> 
-      </div>
-   </div>
-   <div class="form-group">
-      <label style="width: 20%;" class="qblabel">CSV Separator</label>
-      <div style="display: inline-block;width: 70%;">
-         <select style="margin-left:4px !important;" id="sepSelect" class="form-control" >
-            <option value=",">,</option>
-            <option value=";">;</option>
-         </select>
-      </div>
-      <button type="button" class="btn btn-primary btn-md" onclick="selectDatafile()"> Apply </button>
-   </div>
-</div>
-<hr><hr>
-<div>
-<div class="form-horizontal" id="null-filterType" style="display:none;">
-    <div class="form-group">
-        <label style="width: 20%;text-align:left;" class="control-label col-sm-2 qblabel" for="file">Available actions</label>
-        <div class="col-sm-10" style="display: inline-block;width: 70%;">
-            <select style="margin-left:4px !important;" class="form-control" id="filterType" onchange="divVisibilityChanged()" >
-                <option value=""></option>
-                <option disabled>-------- Basic --------</option>
-                <option value="filter">Filter</option>
-                <option value="orderBy">Order By</option>
-                <option value="select">Select column(s)</option>
-                <option value="drop">Drop column(s)</option>
-                <option value="withColumnRenamed">Rename Column</option>
-                <option disabled>------ Aggregations ------</option>
-                <option value="count">Count</option>
-                <option value="min">Min</option>
-                <option value="max">Max</option>
-                <option value="avg">Average</option>
-                <option value="sum">Sum</option>
-                <option disabled>------- Cleansing -------</option>
-                <option value="fillna">Fill N/A with value</option>
-                <option value="isnan">Check if NaN</option>
-                <option value="isnull">Check if null</option>
-                <option value="replace">Replace value</option>
-                <option value="ltrim">Left Trim a Column</option>
-                <option value="rtrim">Right Trim a Column</option>
-                <option disabled value="linear_interp">Fill N/A with linear interpolation</option>
-                <option disabled>--------- Joins ---------</option>
-                <option value="join">Join with master</option>
-                <option value="joinApproxTime">Join with master on approximate time</option>
-                <option disabled>------- Time Conversions ------</option>
-                <option value="year">Add Year Colum</option>
-                <option value="quarter">Add Quarter Column</option>
-                <option value="month">Add Month Column</option>
-                <option value="hour">Add Hour Column</option>
-                <option value="minute">Add Minute Column</option>
-                <option value="to_date">Convert to date</option>
-                <option value="unix_timestamp">Convert to UNIX timestamp</option>
-                <option value="ytrunc">Truncate date to year</option>
-                <option value="mtrunc">Truncate date to month</option>
-                <option value="dayofyear">Add dayOfYear column</option>
-                <option value="dayofmonth">Add dayOfMonth column</option>
-                <option value="datediff">Number of days between dates</option>
-                <option value="months_between">Number of months between dates</option>
-                <option disabled>--------- Math ---------</option>
-                <option value="sqrt">Add Square Root Column</option>
-                <option value="round">Add Round Column</option>
-                <option disabled>--------- Other ---------</option>
-                <option value="col_operation_1">Add column - based on other column </option>
-                <option value="col_operation_2">Add column - combine two columns </option>
-                <option value="when_1">Add column - column-based condition</option>
-                <option value="when_2">Add column - column-based condition & value</option>
-                <option value="when_3">Add column - column-based condition & columns-combination value</option>
-                <option disabled value="replace_extract">Replace based on regexp</option>
-            </select>
-        </div>
-    </div>
-    <!--
-    <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-            <button class="btn btn-primary" id="filters-done" onclick="applyAllFilters();"> Done </button>
-            <button class="btn btn-danger" id="reset-filters" onclick="resetAllFilters();"> Reset </button>
-        </div>
-    </div>
-    -->
-</div>
-<div class="form-horizontal" id="filterType_filter" style="display:none" >
-    <h3>Filter</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector" >
-                <option></option>
-                <option value="<">&lt;</option>
-                <option value="==">=</option>
-                <option value=">">&gt;</option>
-                <option value="!=">!=</option>
-                <option value="like">starts with</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_col_operation_1" style="display:none" >
-    <h3>Create column from an existing</h3>
-    <h4>Compute new value</h4>
-    <h4>-only numeric operations currently supported-</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector" >
-                <option></option>
-                <option value="+">+</option>
-                <option value="-">-</option>
-                <option value="*">*</option>
-                <option value="/">/</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value operation-value" />
-        </div>
-    </div>
-    <h4>New Column Name</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value new-col-name" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_col_operation_2" style="display:none" >
-    <h3>Create column from two existing columns</h3>
-    <h4>Compute new value</h4>
-    <h4>-only numeric operations currently supported-</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column temp-column-A" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector" >
-                <option></option>
-                <option value="+">+</option>
-                <option value="-">-</option>
-                <option value="*">*</option>
-                <option value="/">/</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column temp-column-B" >
-            </select>
-        </div>
-    </div>
-    <h4>New Column Name</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value new-col-name" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_when_1" style="display:none" >
-    <h3>When-Then-Else</h3>
-    <h4>Condition (When)</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column when-div" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector when-div" >
-                <option></option>
-                <option value="<">&lt;</option>
-                <option value="==">=</option>
-                <option value=">">&gt;</option>
-                <option value="!=">!=</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value when-div" />
-        </div>
-    </div>
-    <h4>Value (Then)</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value then-div" />
-        </div>
-    </div>
-    <h4>Alternative Value (Else)</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Alt Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value else-div" />
-        </div>
-    </div>
-    <h4>New Column Name</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value new-col-name" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_when_2" style="display:none" >
-    <h3>When-Then-Else</h3>
-    <h4>Condition (When)</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column when-div temp-column-A" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector when-div" >
-                <option></option>
-                <option value="<">&lt;</option>
-                <option value="==">=</option>
-                <option value=">">&gt;</option>
-                <option value="!=">!=</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value when-div" />
-        </div>
-    </div>
-    <h4>Value (Then)</h4>
-    <h4>-only numeric operations currently supported-</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column then-div temp-column-A" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector then-div" >
-                <option></option>
-                <option value="+">+</option>
-                <option value="-">-</option>
-                <option value="*">*</option>
-                <option value="/">/</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value then-div" />
-        </div>
-    </div>
-    <h4>Alternative Value (Else)</h4>
-    <h4>-only numeric operations currently supported-</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column else-div temp-column-A" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector else-div" >
-                <option></option>
-                <option value="+">+</option>
-                <option value="-">-</option>
-                <option value="*">*</option>
-                <option value="/">/</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Alt Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value else-div" />
-        </div>
-    </div>
-    <h4>New Column Name</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value new-col-name" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_when_3" style="display:none" >
-    <h3>When-Then-Else</h3>
-    <h4>Condition (When)</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column when-div" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector when-div" >
-                <option></option>
-                <option value="<">&lt;</option>
-                <option value="==">=</option>
-                <option value=">">&gt;</option>
-                <option value="!=">!=</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value when-div" />
-        </div>
-    </div>
-    <h4>Value (Then)</h4>
-    <h4>-only numeric operations currently supported-</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column then-div temp-column-A" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector then-div" >
-                <option></option>
-                <option value="+">+</option>
-                <option value="-">-</option>
-                <option value="*">*</option>
-                <option value="/">/</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column then-div temp-column-B" >
-            </select>
-        </div>
-    </div>
-    <h4>Alternative Value (Else)</h4>
-    <h4>-only numeric operations currently supported-</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column else-div temp-column-A" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Operator</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector else-div" >
-                <option></option>
-                <option value="+">+</option>
-                <option value="-">-</option>
-                <option value="*">*</option>
-                <option value="/">/</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column else-div temp-column-B" >
-            </select>
-        </div>
-    </div>
-    <h4>New Column Name</h4>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value new-col-name" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_orderBy" style="display:none" >
-    <h3>Order By</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Sort</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector">
-                <option value="1">Asc</option>
-                <option value="0">Desc</option>
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_count" style="display:none">
-    <h3>Count</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Group By</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column"  >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_ltrim" style="display:none">
-    <h3>Left Trim</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column"  >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_rtrim" style="display:none">
-    <h3>Right Trim</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column"  >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_isnan" style="display:none">
-    <h3>Is NaN</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column"  >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_isnull" style="display:none">
-    <h3>Is Null</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column"  >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_min" style="display:none">
-    <h3>Min</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Columns</label>
-        <div class="col-sm-10">
-            <select multiple class="form-control multiple-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Group By</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column"  >
-            </select>
-        </div>
-    </div>
-
-</div>
-
-<div class="form-horizontal" id="filterType_max" style="display:none">
-    <h3>Max</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Columns</label>
-        <div class="col-sm-10">
-            <select multiple class="form-control multiple-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Group By</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_avg" style="display:none">
-    <h3>Average</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Columns</label>
-        <div class="col-sm-10">
-            <select multiple class="form-control multiple-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Group By</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_sum" style="display:none" >
-    <h3>Sum</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Columns</label>
-        <div class="col-sm-10">
-            <select multiple class="form-control multiple-column-selector temp-column" >                
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Group By</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_year" style="display:none" >
-    <h3>Create Year Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_quarter" style="display:none" >
-    <h3>Create Quarter Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_month" style="display:none" >
-    <h3>Create Month Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_hour" style="display:none" >
-    <h3>Create Hour Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_minute" style="display:none" >
-    <h3>Create Minute Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_dayofmonth" style="display:none" >
-    <h3>Create Day of Month Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_dayofyear" style="display:none" >
-    <h3>Create Day of Year Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_to_date" style="display:none" >
-    <h3>Create Date Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_unix_timestamp" style="display:none" >
-    <h3>Create UNIX Timestamp Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_ytrunc" style="display:none" >
-    <h3>Truncate Date Column to Year</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_mtrunc" style="display:none" >
-    <h3>Truncate Date Column to Month</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_datediff" style="display:none" >
-    <h3>Create DateDiff Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column A</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column temp-column-A" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column B</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column temp-column-B" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_months_between" style="display:none" >
-    <h3>Create MonthsDiff Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column A</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column temp-column-A" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Date Column B</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column temp-column-B" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_sqrt" style="display:none" >
-    <h3>Create SQRT Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Select Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_round" style="display:none" >
-    <h3>Create Rounded Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Select Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Name of New Column</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value col-name" />
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Number of Decimal Places</label>
-        <div class="col-sm-10">
-            <input type="number" step="1" class="form-control user-defined-value int-input" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_select" style="display:none" >
-    <h3>Select Columns</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Columns</label>
-        <div class="col-sm-10">
-            <select multiple class="form-control multiple-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_drop" style="display:none">
-    <h3>Select Columns</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Columns</label>
-        <div class="col-sm-10">
-            <select multiple class="form-control multiple-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_fillna" style="display:none" >
-    <h3>Fill N/A</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_replace" style="display:none" >
-    <h3>Replace Value</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-                <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Current Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value existing-value" />
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">To-Be Value</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value to-be-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_withColumnRenamed" style="display:none" >
-    <h3>Rename Column</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-column" >
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">New Name</label>
-        <div class="col-sm-10">
-            <input class="form-control user-defined-value" />
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_join" style="display:none" >
-    <h3>Join</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Join Type</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector" >
-                <option value="inner">inner</option>
-                <option value="outer">outer</option>
-                <option value="left_outer">left_outer</option>
-                <option value="right_outer">right_outer</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Master Column 1</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector master-column master-col-1">
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Temp Column 1</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-col-1 temp-column empty-option-allowed" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Master Column 2 (opt) </label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector master-column master-col-2" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Temp Column 2 (opt) </label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-col-2 temp-column empty-option-allowed"  >
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Master Column 3 (opt) </label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector master-column master-col-3" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Temp Column 3 (opt) </label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-col-3 temp-column empty-option-allowed" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="filterType_joinApproxTime" style="display:none">
-    <h3>Join on closest time</h3>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Join Type</label>
-        <div class="col-sm-10">
-            <select class="form-control operator-selector" >
-                <option value="inner">inner</option>
-                <option value="outer">outer</option>
-                <option value="left_outer">left_outer</option>
-                <option value="right_outer">right_outer</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Master Time Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector master-column master-time-col" >
-                <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Temp Time Column</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-time-col temp-column empty-option-allowed" >
-                <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Master Column 1</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector master-column master-col-1" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Temp Column 1</label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-col-1 temp-column empty-option-allowed" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Master Column 2 (opt) </label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector master-column master-col-2" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Temp Column 2 (opt) </label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-col-2 temp-column empty-option-allowed" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Master Column 3 (opt) </label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector master-column master-col-3" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-sm-2" for="file">Temp Column 3 (opt) </label>
-        <div class="col-sm-10">
-            <select class="form-control single-column-selector temp-col-3 temp-column empty-option-allowed" >
-            <option></option>
-            </select>
-        </div>
-    </div>
-</div>
-
-<div id="filter-control-buttons" style="display:none">
-        <div class="col-sm-offset-2 col-sm-10">
-            <button class="btn btn-primary btn-sm" onclick="addFilter();"> OK </button>
-            <button class="btn btn-warning btn-sm" onclick="cancelFilter()"> Cancel </button>
-        </div>
-        <hr><hr>
-
-    </div>
-
-<div id="list2"><ol id="show-filters"></ol></div>
     
-<div id="filter-application-buttons" style="display:none" align="right">
-<button type="button" class="btn btn-success btn-sm" onclick="applyAllFilters();"> Apply Filters </button>
-<button type="button" class="btn btn-success btn-sm" onclick="Jupyter.notebook.execute_cells([4]);"> Refresh temp </button>
-<button type="button" class="btn btn-danger btn-sm" onclick="tempToMaster();">Save temp as master</button>
-<button type="button" class="btn btn-success btn-sm" onclick="Jupyter.notebook.execute_cells([6]);"> Refresh master </button>
-<button type="button" class="btn btn-success btn-sm" onclick="document.getElementById('save_conf').style.display = 'block';">Save master to CSV</button>
-<button type="button" class="btn btn-success btn-sm" onclick="Jupyter.notebook.execute_cells([8]);"> Update Query Output </button>
+        <div class="form-horizontal" id="filterType_col_operation_2" style="display:none">
+            <h3>Create column from two existing columns</h3>
+            <h4>Compute new value <span>-only numeric operations supported</span></h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <select class="form-control single-column-selector temp-column temp-column-A">
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector">
+                            <option></option>
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                            <option value="*">*</option>
+                            <option value="/">/</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <select class="form-control single-column-selector temp-column temp-column-B">
+                    </select>
+                </div>
+            </div>
+            <h4>New Column Name</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value new-col-name" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_when_1" style="display:none">
+            <h3>When-Then-Else</h3>
+            <h4>Condition (When)</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column when-div">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector when-div">
+                            <option></option>
+                            <option value="<">&lt;</option>
+                            <option value="==">=</option>
+                            <option value=">">&gt;</option>
+                            <option value="!=">!=</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value when-div" />
+                </div>
+            </div>
+            <h4>Value (Then)</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value then-div" />
+                </div>
+            </div>
+            <h4>Alternative Value (Else)</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Alt Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value else-div" />
+                </div>
+            </div>
+            <h4>New Column Name</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value new-col-name" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_when_2" style="display:none">
+            <h3>When-Then-Else</h3>
+            <h4>Condition (When)</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column when-div temp-column-A">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector when-div">
+                            <option></option>
+                            <option value="<">&lt;</option>
+                            <option value="==">=</option>
+                            <option value=">">&gt;</option>
+                            <option value="!=">!=</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value when-div" />
+                </div>
+            </div>
+            <h4>Value (Then) <span>-only numeric operations supported</span></h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column then-div temp-column-A">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector then-div">
+                            <option></option>
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                            <option value="*">*</option>
+                            <option value="/">/</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value then-div" />
+                </div>
+            </div>
+            <h4>Alternative Value (Else) <span>-only numeric operations supported</span></h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column else-div temp-column-A">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <selec
+                        ]ct>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Alt Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value else-div" />
+                </div>
+            </div>
+            <h4>New Column Name</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value new-col-name" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_when_3" style="display:none">
+            <h3>When-Then-Else</h3>
+            <h4>Condition (When)</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column when-div">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector when-div">
+                            <option></option>
+                            <option value="<">&lt;</option>
+                            <option value="==">=</option>
+                            <option value=">">&gt;</option>
+                            <option value="!=">!=</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value when-div" />
+                </div>
+            </div>
+            <h4>Value (Then) <span>-only numeric operations supported</span></h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column then-div temp-column-A">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector then-div">
+                            <option></option>
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                            <option value="*">*</option>
+                            <option value="/">/</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column then-div temp-column-B">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <h4>Alternative Value (Else) <span>-only numeric operations supported</span></h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column else-div temp-column-A">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Operator:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector else-div">
+                            <option></option>
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                            <option value="*">*</option>
+                            <option value="/">/</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column else-div temp-column-B">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <h4>New Column Name</h4>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value new-col-name" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_orderBy" style="display:none">
+            <h3>Order By</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Sort:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector">
+                            <option value="1">Asc</option>
+                            <option value="0">Desc</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_count" style="display:none">
+            <h3>Count</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Group By:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_ltrim" style="display:none">
+            <h3>Left Trim</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_rtrim" style="display:none">
+            <h3>Right Trim</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_isnan" style="display:none">
+            <h3>Is NaN</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_isnull" style="display:none">
+            <h3>Is Null</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_min" style="display:none">
+            <h3>Min</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Columns:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select multiple class="form-control multiple-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Group By:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-horizontal" id="filterType_max" style="display:none">
+            <h3>Max</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Columns:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select multiple class="form-control multiple-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Group By:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_avg" style="display:none">
+            <h3>Average</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Columns:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select multiple class="form-control multiple-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Group By:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_sum" style="display:none">
+            <h3>Sum</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Columns:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select multiple class="form-control multiple-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Group By:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_year" style="display:none">
+            <h3>Create Year Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_quarter" style="display:none">
+            <h3>Create Quarter Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_month" style="display:none">
+            <h3>Create Month Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_hour" style="display:none">
+            <h3>Create Hour Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_minute" style="display:none">
+            <h3>Create Minute Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_dayofmonth" style="display:none">
+            <h3>Create Day of Month Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_dayofyear" style="display:none">
+            <h3>Create Day of Year Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_to_date" style="display:none">
+            <h3>Create Date Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_unix_timestamp" style="display:none">
+            <h3>Create UNIX Timestamp Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_ytrunc" style="display:none">
+            <h3>Truncate Date Column to Year</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_mtrunc" style="display:none">
+            <h3>Truncate Date Column to Month</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_datediff" style="display:none">
+            <h3>Create DateDiff Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column A:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column temp-column-A">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column B:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column temp-column-B">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_months_between" style="display:none">
+            <h3>Create MonthsDiff Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column A:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column temp-column-A">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Date Column B:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column temp-column-B">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_sqrt" style="display:none">
+            <h3>Create SQRT Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Select Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_round" style="display:none">
+            <h3>Create Rounded Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Select Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Name of New Column:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value col-name" />
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Number of Decimal Places:</label>
+                <div class="col-sm-10">
+                    <input type="number" step="1" class="form-control user-defined-value int-input" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_select" style="display:none">
+            <h3>Select Columns</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Columns:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select multiple class="form-control multiple-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_drop" style="display:none">
+            <h3>Select Columns</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Columns:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select multiple class="form-control multiple-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_fillna" style="display:none">
+            <h3>Fill N/A</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_replace" style="display:none">
+            <h3>Replace Value</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Current Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value existing-value" />
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">To-Be Value:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value to-be-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_withColumnRenamed" style="display:none">
+            <h3>Rename Column</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-column">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">New Name:</label>
+                <div class="col-sm-10">
+                    <input class="form-control user-defined-value" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_join" style="display:none">
+            <h3>Join</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Join Type:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector">
+                            <option value="inner">inner</option>
+                            <option value="outer">outer</option>
+                            <option value="left_outer">left_outer</option>
+                            <option value="right_outer">right_outer</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Master Column 1:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector master-column master-col-1">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Temp Column 1:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-col-1 temp-column empty-option-allowed">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Master Column 2 (opt) :</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector master-column master-col-2">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Temp Column 2 (opt) :</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-col-2 temp-column empty-option-allowed">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Master Column 3 (opt) :</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector master-column master-col-3">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Temp Column 3 (opt) :</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-col-3 temp-column empty-option-allowed">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" id="filterType_joinApproxTime" style="display:none">
+            <h3>Join on closest time</h3>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Join Type:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control operator-selector">
+                            <option value="inner">inner</option>
+                            <option value="outer">outer</option>
+                            <option value="left_outer">left_outer</option>
+                            <option value="right_outer">right_outer</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Master Time Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector master-column master-time-col">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Temp Time Column:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-time-col temp-column empty-option-allowed">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Master Column 1:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector master-column master-col-1">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Temp Column 1:</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-col-1 temp-column empty-option-allowed">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Master Column 2 (opt) :</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector master-column master-col-2">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Temp Column 2 (opt) :</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-col-2 temp-column empty-option-allowed">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Master Column 3 (opt) :</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector master-column master-col-3">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row form-horizontal">
+                <label class="col-sm-2 control-label">Temp Column 3 (opt) :</label>
+                <div class="col-sm-10">
+                    <div class="widget-dropdown">
+                        <select class="form-control single-column-selector temp-col-3 temp-column empty-option-allowed">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="filter-control-buttons" style="display:none">
+        <div class="form-group row form-horizontal">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button class="jupyter-button jupyter-widgets mod-primary widget-button" onclick="addFilter();"> OK </button>
+                <button class="jupyter-button jupyter-widgets widget-button" onclick="cancelFilter()"> Cancel </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="list2">
+        <ol id="show-filters"></ol>
+    </div>
+
+    <div id="filter-application-buttons" style="display:none">
+        <hr>
+        <div class="form-group row form-horizontal">
+            <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button" onclick="applyAllFilters();"> Apply Filters </button>
+            <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button" onclick="Jupyter.notebook.execute_cells([4]);"> Refresh
+                temp </button>
+            <button type="button" class="jupyter-button jupyter-widgets mod-warning widget-button" onclick="tempToMaster();">Save temp as master</button>
+            <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button" onclick="Jupyter.notebook.execute_cells([6]);"> Refresh
+                master </button>
+            <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button"
+                onclick="document.getElementById('save_conf').style.display = 'block';">Save master to CSV</button>
+            <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button" onclick="Jupyter.notebook.execute_cells([8]);"> Update
+                Query Output </button>
+        </div>
+    </div>
+
+    <div id="save_conf" style="display:none">
+        <hr>
+        <div class="form-group row form-horizontal">
+            <h3>Save Configuration</h3>
+        </div>
+        <div class="form-group row form-horizontal">
+            <label class="col-sm-2 control-label">Select Dataset:</label>
+            <div class="col-sm-10">
+                <div class="widget-dropdown">
+                    <select id="datasetSaveSelect" class="form-control">
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row form-horizontal">
+            <label class="col-sm-2 control-label">Result Folder Name:</label>
+            <div class="col-sm-10">
+                <input id="folderNameSelect" class="form-control"></input>
+            </div>
+        </div>
+        <div class="form-group row form-horizontal">
+            <label class="col-sm-2 control-label">Include Header:</label>
+            <div class="col-sm-10">
+                <input type="checkbox" id="saveHeaderCheckbox" value="with" checked>
+                </input>
+            </div>
+        </div>
+        <div class="form-group row form-horizontal">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button"
+                    onclick="exportMaster();document.getElementById('save_conf').style.display = 'none';"> Save </button>
+                <button type="button" class="jupyter-button jupyter-widgets widget-button"
+                    onclick="document.getElementById('save_conf').style.display = 'none';"> Cancel </button>
+            </div>
+        </div>
+    </div>
+
 </div>
-
-
-<div id="save_conf" style="display:none">
-<h3>Save Configuration</h3>
-  <div class="form-group">
-              <label style="width: 20%;" class="qblabel">Select Dataset</label>
-              <div style="display: inline-block;width: 70%;">
-                <select style="margin-left:4px !important;" id="datasetSaveSelect" class="form-control" >
-                  
-                </select> 
-              </div>
-            </div>
-             <div class="form-group">
-              <label style="width: 20%;" class="qblabel">Result Folder Name</label>
-              <div style="display: inline-block;width: 70%;">
-                <input style="margin-left:4px !important;" id="folderNameSelect" class="form-control" >
-                  
-                </input> 
-              </div>
-            </div>
-            <div class="form-group">
-              <label style="width: 20%;" class="qblabel">Include Header</label>
-              <div style="display: inline-block;width: 70%;">
-            <input type="checkbox" id="saveHeaderCheckbox" value="with" checked>                   
-                </input> 
-              </div>
-            </div>
-            <button type="button" class="btn btn-primary btn-md" onclick="exportMaster();document.getElementById('save_conf').style.display = 'none';"> Save </button>
-            <button type="button" class="btn btn-danger btn-md" onclick="document.getElementById('save_conf').style.display = 'none';"> Cancel </button>
-
-</div>
-
-
 <script>
-
+$( document ).ready(function() {
+    showCurrentBrowser();
+});
 var tempDF_columns = []
 var datafile_options = []
 var filter_divs = ["null-filterType","filterType_joinApproxTime","filterType_join",
@@ -1233,7 +1352,7 @@ function exportMaster(){
 
 }
 
-<!-- call python to read file from hdfs, reset filter dropdown and populate column dropdowns -->
+// call python to read file from hdfs, reset filter dropdown and populate column dropdowns -->
 function selectDatafile(){
     var kernel = IPython.notebook.kernel;
     var callbacks = {
@@ -1271,7 +1390,7 @@ function getCSVfilesFromFS(data){
     datafilesObtained(JSON.parse(datafile_options.replace(/u\'/g,'"').replace(/\'/g,'"')))
 }
 
-<!-- add tempDF columns to the dropdown selectors -->
+//<!-- add tempDF columns to the dropdown selectors -->
 function handle_output(data){
     tempDF_columns = data.content.text;
     addColumnFields(tempDF_columns);
@@ -1382,22 +1501,22 @@ function divVisibilityChanged() {
     divVisibility(divid);
 }
 
-<!-- choose which of the forms will be visible -->
+//<!-- choose which of the forms will be visible -->
 function divVisibility(divId) {
     visibleDivId = divId;
     hideNonVisibleDivs();
     
-    <!--
+    /*<!--
     if(visibleDivId === divId) {
         visibleDivId = null;
       } 
     else {
         visibleDivId = divId;
       }
-    -->
+    //-->*/
 }
 
-<!-- helper:called to choose which of the forms will be visible -->
+//<!-- helper:called to choose which of the forms will be visible -->
 function hideNonVisibleDivs() {
       var i, divId, div;
       for(i = 0; i < filter_divs.length; i++) {
@@ -1418,7 +1537,7 @@ function hideNonVisibleDivs() {
     
 }
 
-<!-- populate column dropdowns -->
+//<!-- populate column dropdowns -->
 function addColumnFields(columns){
     arraycols = JSON.parse(columns.replace(/\'/g,'"'))
     $('.temp-column').each(function(index){
@@ -1436,8 +1555,8 @@ function addColumnFields(columns){
     });
     
 }
-                                           
-<!-- populate master column dropdowns -->
+
+//<!-- populate master column dropdowns -->
 function addMasterColumnFields(columns){
     masterarraycols = JSON.parse(columns.replace(/\'/g,'"'))
     $('.master-column').each(function(index){
@@ -1953,7 +2072,7 @@ function resetAllFilters(){
     filter_count = 0
 }
 
-<!-- helper: adds options to help populate column dropdowns -->
+//<!-- helper: adds options to help populate column dropdowns -->
 function optionGenerator(instance,paramObj){  
     instance
     .append($("<option></option>")

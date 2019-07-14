@@ -1,13 +1,92 @@
 %%html
 <!-- P0 -->
-
-<button type="button" class="btn btn-primary btn-md" onclick="initQB()">Initialise QB</button>
+<div class="aegis">
+    <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button" onclick="initQB()">Initialise
+        QB</button>
+</div>
 <script>
-$.ajaxSetup({
-    headers: { "Authorization": localStorage.getItem("token") }
-});
-function initQB(){
-    Jupyter.notebook.execute_cells([1]);
-    Jupyter.notebook.execute_cells([2,3,4,5,6,7,8]);
-}
+    $.ajaxSetup({
+        headers: { "Authorization": localStorage.getItem("token") }
+    });
+    function initQB() {
+        Jupyter.notebook.execute_cells([1]);
+        Jupyter.notebook.execute_cells([2, 3, 4, 5, 6, 7, 8]);
+    }
+
 </script>
+
+<style>
+    .aegis .control-label {
+        padding-right: 10px;
+        font-weight: bold;
+    }
+
+    .aegis .widget-dropdown {
+        width: 100%;
+        height: inherit;
+    }
+
+    .aegis .widget-dropdown>select {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .aegis .input-group .jupyter-button {
+        padding: 6px 12px;
+        line-height: 1.42857143;
+        /*height: 32px;*/
+    }
+
+    .aegis .form-control {
+        padding-top: 0;
+        padding-bottom: 0;
+        height: 28px;
+        border: 1px solid #9E9E9E;
+        border-radius: 0;
+        padding-left: 8px;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        color: rgba(0, 0, 0, .8);
+    }
+    .aegis select[multiple], select[size] {
+        height: auto;
+    }
+    .aegis input[type=checkbox] {
+        height: 28px;
+    }
+
+    .output pre {
+        white-space: pre;
+    }
+
+    #list2 {
+        width: 320px;
+    }
+    #list2 ol {
+        font-size: 18px;
+        color: #337ab7;
+    }
+    #list2 ol li p {
+        padding: 8px;
+        font-style: normal;
+        font-size: 13px;
+        color: black;
+        border-left: 1px solid #999;
+    }
+    #list2 ol li.applied p em {
+        color: lightgray;
+    }
+    #list2 ol li p em {
+        display: block;
+    }
+    #filter-application-buttons {
+        text-align: center;
+    }
+    .aegis h4 {
+        margin: 9px 0px;
+    }
+    .aegis h4 span {
+        font-style: italic;
+        font-weight: initial;
+    }
+</style>
