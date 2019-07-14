@@ -1,0 +1,105 @@
+{
+    "ipynb": {
+        "cells": [],
+        "metadata": {
+            "celltoolbar": "Hide code",
+            "hide_code_all_hidden": false,
+            "kernelspec": {
+                "display_name": "PySpark",
+                "language": "",
+                "name": "pysparkkernel"
+            },
+            "language_info": {
+                "codemirror_mode": {
+                    "name": "python",
+                    "version": 2
+                },
+                "mimetype": "text/x-python",
+                "name": "pyspark",
+                "pygments_lexer": "python2"
+            },
+            "widgets": {
+                "application/vnd.jupyter.widget-state+json": {
+                    "state": {
+                        "167424505fd34435b6b4c97cb1b3e0a1": {
+                            "model_module": "@jupyter-widgets/controls",
+                            "model_module_version": "1.0.0",
+                            "model_name": "ButtonModel",
+                            "state": {
+                                "button_style": "primary",
+                                "description": "Click to initialise Query Builder",
+                                "layout": "IPY_MODEL_5e2143cd99ee4cd58e622c9d362a34ce",
+                                "style": "IPY_MODEL_a6407adcb36e4a10a3331a79fca72281"
+                            }
+                        },
+                        "227bb92092c748d4b1d826425ec45e45": {
+                            "model_module": "@jupyter-widgets/controls",
+                            "model_module_version": "1.0.0",
+                            "model_name": "ButtonStyleModel",
+                            "state": {}
+                        },
+                        "5e2143cd99ee4cd58e622c9d362a34ce": {
+                            "model_module": "@jupyter-widgets/base",
+                            "model_module_version": "1.0.0",
+                            "model_name": "LayoutModel",
+                            "state": {
+                                "flex": "1 1 auto",
+                                "width": "20%"
+                            }
+                        },
+                        "66e5ae58e88d4d659ee5bde6f9de6efe": {
+                            "model_module": "@jupyter-widgets/controls",
+                            "model_module_version": "1.0.0",
+                            "model_name": "ButtonModel",
+                            "state": {
+                                "button_style": "primary",
+                                "description": "Click to initialise Query Builder",
+                                "layout": "IPY_MODEL_da5a0058efaf48ba9d15143bbcd4c32e",
+                                "style": "IPY_MODEL_227bb92092c748d4b1d826425ec45e45"
+                            }
+                        },
+                        "a6407adcb36e4a10a3331a79fca72281": {
+                            "model_module": "@jupyter-widgets/controls",
+                            "model_module_version": "1.0.0",
+                            "model_name": "ButtonStyleModel",
+                            "state": {}
+                        },
+                        "da5a0058efaf48ba9d15143bbcd4c32e": {
+                            "model_module": "@jupyter-widgets/base",
+                            "model_module_version": "1.0.0",
+                            "model_name": "LayoutModel",
+                            "state": {
+                                "flex": "1 1 auto",
+                                "width": "20%"
+                            }
+                        }
+                    },
+                    "version_major": 2,
+                    "version_minor": 0
+                }
+            }
+        },
+        "nbformat": 4,
+        "nbformat_minor": 2
+    },
+    "code": {
+        "cell_type": "code",
+        "execution_count": null,
+        "metadata": {
+            "hideCode": true,
+            "hideOutput": false,
+            "hidePrompt": false
+        },
+        "outputs": [],
+        "source": []
+    },
+    "md": {
+        "cell_type": "markdown",
+        "metadata": {
+            "hideCode": true,
+            "hideOutput": false,
+            "hidePrompt": false
+        },
+        "source": []
+    }
+}
