@@ -3,6 +3,23 @@
 <div class="aegis">
     <div id="cbrowser">
         <div class="form-group row form-horizontal">
+            <label class="col-sm-2 control-label">File:</label>
+            <div class="col-sm-10">
+                <div class="input-group widget-dropdown">
+                    <select id="fileBrowser" class="form-control">
+                    </select>
+                    <span class="input-group-btn">
+                        <button type="button" style="display:none" class="btn jupyter-button mod-primary" onclick="fileBrowserOpen()">
+                            Open
+                        </button>
+                        <button type="button" class="btn jupyter-button mod-primary" onclick="forceFileBrowserRefresh()">
+                            Refresh list
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row form-horizontal" style="display:none">
             <label class="col-sm-2 control-label">Available Datasets:</label>
             <div class="col-sm-10">
                 <div class="input-group widget-dropdown">
@@ -19,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group row form-horizontal">
+        <div class="form-group row form-horizontal" style="display:none">
             <label class="col-sm-2 control-label">Available Files:</label>
             <div class="col-sm-10">
                 <div class="widget-dropdown">
@@ -53,8 +70,11 @@
         </div>
         <div class="form-group row form-horizontal">
             <div class="col-sm-offset-2 col-sm-10">
-                <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button"
+                <button type="button" class="jupyter-button jupyter-widgets mod-primary widget-button" style="display:none"
                     onclick="selectDatafile()"> Open file </button>
+                <button id="fileBrowserOpenBtn" type="button" class="btn jupyter-button mod-primary" onclick="fileBrowserOpen()">
+                    Open
+                </button>
             </div>
         </div>
     </div>
@@ -1374,8 +1394,28 @@
 </div>
 <script>
     $(document).ready(function () {
+        $("#fileBrowser").on('change', function() {
+            updateFileBrowserOpenBtn();
+        });
+        paramDataset = new URL(window.location).searchParams.get("dataset");
+        if (paramDataset !== null) {
+            paramDataset = "/" + paramDataset;
+            QB.currentPath = paramDataset.substring(0, paramDataset.lastIndexOf("/")+1);
+        }
         showCurrentBrowser();
+        findCurrentProjectID()
+            .done(function (projectId) {
+                QB.currentProjectId = projectId;
+            })
+            .done(function () {
+                fileBrowserRefresh(paramDataset);
+            });
     });
+    var QB = {
+        currentProjectId: null,
+        currentPath: "/",
+        browser: {"/":[]}
+    }
     var tempDF_columns = []
     var datafile_options = []
     var filter_divs = ["null-filterType", "filterType_joinApproxTime", "filterType_join",
@@ -1395,7 +1435,6 @@
     var filter_count = 0
     var successfulFilters = []
     var successfulFiltersPermanent = [] //< !--temporary solution, to be removed -->
-    var currentDFpath = ""
 
     function show_filters() {
         $("#show-filters").empty()
@@ -1429,16 +1468,19 @@
 
     // call python to read file from hdfs, reset filter dropdown and populate column dropdowns -->
     function selectDatafile() {
+        dataset = document.getElementById('fileSelect').value;
+        separator = document.getElementById('sepSelect').value;
+        loadDataFile(dataset, separator);
+    }
+
+    function loadDataFile(path, separator) {
         var kernel = IPython.notebook.kernel;
         var callbacks = {
             iopub: {
                 output: handle_output,
             }
         }
-        dataset = document.getElementById('fileSelect').value;
-        currentDFpath = document.getElementById('fileSelect').value;
-        separator = document.getElementById('sepSelect').value;
-        var msg_id = kernel.execute('read_dataset("' + dataset + '","' + separator + '")', callbacks);
+        var msg_id = kernel.execute('read_dataset("' + path + '","' + separator + '")', callbacks);
         divVisibility("null-filterType");
         document.getElementById("filter-application-buttons").style.display = "block"; //because now we have a tempDF
         visibleDivId = null;
@@ -1511,7 +1553,6 @@
     function populateAvailableDatasetsList(data) {
         $.get("/hopsworks-api/api/project/" + data.content.text + "/dataset/getContent", function (data, status) {
             var user_datasets = []
-            var x = document.getElementById("cbrowser");
 
             skipthem = ["Jupyter", "Logs", "Models", "notebook", "Resources"]
             data.forEach(function (element) {
@@ -1533,10 +1574,137 @@
         })
     }
 
+    function fileBrowserOpen() {
+        var dropl = document.getElementById("fileBrowser");
+        if (dropl.options[dropl.selectedIndex].getAttribute("dir") === "true") {
+            QB.currentPath = dropl.value;
+            fileBrowserRefresh();
+        } else {
+            console.log("Open file: " + dropl.options[dropl.selectedIndex].getAttribute("path"));
+            dataset = dropl.options[dropl.selectedIndex].getAttribute("path");
+            separator = document.getElementById('sepSelect').value;
+            loadDataFile(dataset, separator);
+        }
+    }
+
+    function updateFileBrowserOpenBtn() {
+        var dropl = document.getElementById("fileBrowser");
+        if (dropl.options[dropl.selectedIndex].getAttribute("dir") === "true") {
+            $("#fileBrowserOpenBtn").text("Open Folder");
+        } else {
+            $("#fileBrowserOpenBtn").text("Open File");
+        }
+    }
+
+    function forceFileBrowserRefresh() {
+        var path = QB.currentPath || "/";
+        if (path.substr(-1) !== "/") path = path + "/";
+        
+        QB.browser[path] = [];
+        console.log("force reload files " + path);
+        fileBrowserRefresh();
+    }
+
+    function fileBrowserRefresh(selectedDataset) {
+        var path = QB.currentPath || "/";
+        if (path.substr(-1) !== "/") path = path + "/";
+
+        if (!QB.browser[path]) {
+            QB.browser[path] = [];
+        }
+
+        var b = QB.browser[path];
+
+        if (QB.browser[path].length > 0) {
+            console.log("retrieve cached folder: " + path)
+            populateFileBrowser(b, selectedDataset);
+            return;
+        }
+        console.log("retrieve folder: " + path)
+        $.get(`/hopsworks-api/api/project/${QB.currentProjectId}/dataset/getContent${path}`, function (data, status) {
+            if (path !== "/") {
+                var relativePath = path.split("/");
+                relativePath.pop();
+                relativePath.pop();
+                b.push({
+                    label: "..",
+                    relativePath: relativePath.join("/") + "/",
+                    dir: true 
+                })
+            }
+
+            var shared = path.indexOf("::") > 0;
+            skipthem = ["Jupyter", "Logs", "Models", "notebook", "Resources"]
+            data.forEach(function (element) {
+                if (element.dir && (skipthem.includes(element.name) || element.name.endsWith(".db"))) {
+                    return;
+                }
+                if (!element.dir && element.name.substr(-4) !== ".csv") {
+                    return;
+                }
+                b.push({
+                    label: element.name,
+                    path: element.path,
+                    relativePath: `${path}${element.name}`,
+                    dir: element.dir
+                });
+            });
+            b.sort(browserSort);
+            populateFileBrowser(b, selectedDataset);
+        });
+    }
+    function populateFileBrowser(b, selectedDataset) {
+        var dropl = document.getElementById("fileBrowser");
+        dropl.options.length = 0;
+        b.forEach(function(bb) {
+            dropl.options.add(new Option(bb.label, bb.relativePath));
+            dropl.options[dropl.options.length-1].setAttribute("dir", bb.dir);
+            if (!bb.dir)
+                dropl.options[dropl.options.length-1].setAttribute("path", bb.path);
+            if (selectedDataset && selectedDataset === bb.relativePath)
+                dropl.options[dropl.options.length-1].selected = true;
+        });
+        updateFileBrowserOpenBtn();
+    }
+    // Will sort firt the directories, then the files, sorted by label.
+    function browserSort(a, b) {
+        if (~a.dir < ~b.dir) {
+            return -1;
+        }
+        if (~a.dir > ~b.dir) {
+            return 1;
+        }
+        if (a.label.toLowerCase() < b.label.toLowerCase()) {
+            return -1;
+        }
+        if (a.label.toLowerCase() > b.label.toLowerCase()) {
+            return 1;
+        }
+        return 0;
+    }
+    function findCurrentProjectID() {
+        var deferred = jQuery.Deferred();
+        $.get("/hopsworks-api/api/project", function (data, status) {
+            var pdict = {}
+            data.forEach(function (e) {
+                pdict[e.project.name] = e.project.id;
+            });
+            var kernel = IPython.notebook.kernel;
+            var callbacks = {
+                iopub: {
+                    output: function(data) {
+                        var projectId = data.content.text;
+                        deferred.resolve(projectId);
+                    },
+                }
+            }
+            var pdict_parameter = (JSON.stringify(pdict))
+            var msg_id = kernel.execute('find_current_projectID(\'' + pdict_parameter + '\')', callbacks);
+        });
+        return deferred.promise();
+    }
 
     function showCurrentBrowser() {
-        var x = document.getElementById("cbrowser");
-
         $.get("/hopsworks-api/api/project", function (data, status) {
             var pdict = {}
             data.forEach(function (e) {
@@ -1551,14 +1719,13 @@
             var pdict_parameter = (JSON.stringify(pdict))
             var msg_id = kernel.execute('find_current_projectID(\'' + pdict_parameter + '\')', callbacks);
         })
-
     }
 
     function datafilesObtained(options) {
         var dropl = document.getElementById("fileSelect");
         dropl.options.length = 0;
         for (opt in options) {
-            dropl.options[dropl.options.length] = new Option(options[opt]);
+            dropl.options[dropl.options.length] = new Option(options[opt].substring(options[opt].lastIndexOf("/") + 1), options[opt]);
         }
     }
 
