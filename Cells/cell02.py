@@ -50,6 +50,29 @@ def apply_filters(applied_filters):
                         applied_filters[index]["parameters"][2] = "'"+applied_filters[index]["parameters"][2]+"'"
                         tempDF = tempDF.filter(" ".join(applied_filters[index]["parameters"]))
                         query+="tempDF = tempDF.filter(\""+" ".join(applied_filters[index]["parameters"])+"\")\n"
+            if filter_type=="filterOr":
+                applied_filters[index]["parameters"][0] = "`"+applied_filters[index]["parameters"][0]+"`"
+                if applied_filters[index]["parameters"][1]=="like":
+                    cond1 = applied_filters[index]["parameters"][0]+" "+applied_filters[index]["parameters"][1]+" \'"+applied_filters[index]["parameters"][2][:-1]+"%\'"
+                else:
+                    try:
+                        float(applied_filters[index]["parameters"][2])
+                    except ValueError as ver:       
+                        applied_filters[index]["parameters"][2] = "'"+applied_filters[index]["parameters"][2]+"'"
+                    cond1 = " ".join(applied_filters[index]["parameters"][:3])
+
+                applied_filters[index]["parameters"][3] = "`"+applied_filters[index]["parameters"][3]+"`"
+                if applied_filters[index]["parameters"][4]=="like":
+                    cond2 = applied_filters[index]["parameters"][3]+" "+applied_filters[index]["parameters"][4]+" \'"+applied_filters[index]["parameters"][5][:-1]+"%\'"
+                else:
+                    try:
+                        float(applied_filters[index]["parameters"][5])
+                    except ValueError as ver:       
+                        applied_filters[index]["parameters"][5] = "'"+applied_filters[index]["parameters"][5]+"'"
+                    cond2 = " ".join(applied_filters[index]["parameters"][3:6])
+
+                tempDF = tempDF.filter(cond1 + " or " + cond2)
+                query+="tempDF = tempDF.filter(\""+cond1 + " or " + cond2+"\")\n"
             elif filter_type=="join":
                 paramsList = [x for x in applied_filters[index]["parameters"]]
                 keep = [x for x in paramsList[1:] if (None not in x)]

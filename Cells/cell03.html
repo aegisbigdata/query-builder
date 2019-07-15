@@ -69,6 +69,7 @@
                         <option value=""></option>
                         <option disabled>-------- Basic --------</option>
                         <option value="filter">Filter</option>
+                        <option value="filterOr">Filter OR</option>
                         <option value="orderBy">Order By</option>
                         <option value="select">Select column(s)</option>
                         <option value="drop">Drop column(s)</option>
@@ -152,6 +153,70 @@
                 </div>
             </div>
         </div>
+
+        <div id="filterType_filterOr" style="display:none">
+                <h3>Filter OR</h3>
+                <div class="form-group row form-horizontal">
+                    <label class="col-sm-2 control-label">Column 1:</label>
+                    <div class="col-sm-10">
+                        <div class="widget-dropdown">
+                            <select class="form-control single-column-selector temp-column col1_colname">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row form-horizontal">
+                    <label class="col-sm-2 control-label">Operator:</label>
+                    <div class="col-sm-10">
+                        <div class="widget-dropdown">
+                            <select class="form-control operator-selector col1_operator">
+                                <option></option>
+                                <option value="<">&lt;</option>
+                                <option value="==">=</option>
+                                <option value=">">&gt;</option>
+                                <option value="!=">!=</option>
+                                <option value="like">starts with</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row form-horizontal">
+                    <label class="col-sm-2 control-label">Value:</label>
+                    <div class="col-sm-10">
+                        <input class="form-control user-defined-value col1_value" />
+                    </div>
+                </div>
+                <div class="form-group row form-horizontal">
+                        <label class="col-sm-2 control-label">Column 2:</label>
+                        <div class="col-sm-10">
+                            <div class="widget-dropdown">
+                                <select class="form-control single-column-selector temp-column col2_colname">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row form-horizontal">
+                        <label class="col-sm-2 control-label">Operator:</label>
+                        <div class="col-sm-10">
+                            <div class="widget-dropdown">
+                                <select class="form-control operator-selector col2_operator">
+                                    <option></option>
+                                    <option value="<">&lt;</option>
+                                    <option value="==">=</option>
+                                    <option value=">">&gt;</option>
+                                    <option value="!=">!=</option>
+                                    <option value="like">starts with</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row form-horizontal">
+                        <label class="col-sm-2 control-label">Value:</label>
+                        <div class="col-sm-10">
+                            <input class="form-control user-defined-value col2_value" />
+                        </div>
+                    </div>
+            </div>
 
         <div id="filterType_col_operation_1" style="display:none">
             <h3>Create column from an existing</h3>
@@ -1317,7 +1382,7 @@
         "filterType_year", "filterType_withColumnRenamed", "filterType_replace",
         "filterType_fillna", "filterType_orderBy", "filterType_count",
         "filterType_min", "filterType_max", "filterType_sum", "filterType_ltrim",
-        "filterType_rtrim", "filterType_avg", "filterType_filter",
+        "filterType_rtrim", "filterType_avg", "filterType_filter", "filterType_filterOr",
         "filterType_select", "filterType_drop", "filterType_isnan",
         "filterType_isnull", "filterType_quarter", "filterType_month",
         "filterType_minute", "filterType_hour", "filterType_dayofmonth", "filterType_dayofyear",
@@ -1592,6 +1657,21 @@
                 parameters.push($("#filterType_filter .user-defined-value").val())
                 filterObj["parameters"] = parameters
                 filterObj["descr"] = parameters.toString();
+                applied_filters[filter_count.toString()] = filterObj;
+                break;
+            }
+            case "filterOr": {
+                filterObj["type"] = enabled_filter;
+                filterObj["executed"] = false;
+                parameters = [];
+                parameters.push($("#filterType_filterOr .single-column-selector.col1_colname").find(":selected").val());
+                parameters.push($("#filterType_filterOr .operator-selector.col1_operator").find(":selected").val());
+                parameters.push($("#filterType_filterOr .user-defined-value.col1_value").val());
+                parameters.push($("#filterType_filterOr .single-column-selector.col2_colname").find(":selected").val());
+                parameters.push($("#filterType_filterOr .operator-selector.col2_operator").find(":selected").val());
+                parameters.push($("#filterType_filterOr .user-defined-value.col2_value").val());
+                filterObj["parameters"] = parameters;
+                filterObj["descr"] = parameters.slice(0,3).toString() + " OR " + parameters.slice(3).toString();
                 applied_filters[filter_count.toString()] = filterObj;
                 break;
             }
