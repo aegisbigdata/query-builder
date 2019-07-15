@@ -1551,7 +1551,9 @@
     }
 
     function populateAvailableDatasetsList(data) {
-        $.get("/hopsworks-api/api/project/" + data.content.text + "/dataset/getContent", function (data, status) {
+        $.get({
+            url: "/hopsworks-api/api/project/" + data.content.text + "/dataset/getContent", 
+            headers: { "Authorization": localStorage.getItem("token") }}, function (data, status) {
             var user_datasets = []
 
             skipthem = ["Jupyter", "Logs", "Models", "notebook", "Resources"]
@@ -1599,7 +1601,7 @@
     function forceFileBrowserRefresh() {
         var path = QB.currentPath || "/";
         if (path.substr(-1) !== "/") path = path + "/";
-        
+
         QB.browser[path] = [];
         console.log("force reload files " + path);
         fileBrowserRefresh();
@@ -1621,7 +1623,9 @@
             return;
         }
         console.log("retrieve folder: " + path)
-        $.get(`/hopsworks-api/api/project/${QB.currentProjectId}/dataset/getContent${path}`, function (data, status) {
+        $.get({
+            url: `/hopsworks-api/api/project/${QB.currentProjectId}/dataset/getContent${path}`, 
+            headers: { "Authorization": localStorage.getItem("token") }}, function (data, status) {
             if (path !== "/") {
                 var relativePath = path.split("/");
                 relativePath.pop();
@@ -1684,7 +1688,9 @@
     }
     function findCurrentProjectID() {
         var deferred = jQuery.Deferred();
-        $.get("/hopsworks-api/api/project", function (data, status) {
+        $.get({
+            url: "/hopsworks-api/api/project", 
+            headers: { "Authorization": localStorage.getItem("token") }}, function (data, status) {
             var pdict = {}
             data.forEach(function (e) {
                 pdict[e.project.name] = e.project.id;
@@ -1705,7 +1711,9 @@
     }
 
     function showCurrentBrowser() {
-        $.get("/hopsworks-api/api/project", function (data, status) {
+        $.get({
+            url: "/hopsworks-api/api/project", 
+            headers: { "Authorization": localStorage.getItem("token") }}, function (data, status) {
             var pdict = {}
             data.forEach(function (e) {
                 pdict[e.project.name] = e.project.id;
