@@ -59,11 +59,11 @@
             <div class="col-sm-4">
                 <div class="widget-dropdown">
                     <select id="encSelect" class="form-control">
-                        <option data-value="auto" value="auto">Auto</option>
-                        <option data-value="ascii" value="ascii">ASCII</option>
-                        <option data-value="utf_8" value="utf_8">UTF-8</option>
-                        <option data-value="utf_8_sig" value="utf_8_sig">UTF-8 with BOM</option>
-                        <option data-value="cp1252" value="cp1252">Windows-1252</option>
+                        <option value="utf_8">UTF-8</option>
+                        <option value="ascii">ASCII</option>
+                        <option value="utf_8_sig">UTF-8 with BOM</option>
+                        <option value="cp1252">Windows-1252</option>
+                        <option value="cp1253">Windows-1253</option>
                     </select>
                 </div>
             </div>
@@ -1470,17 +1470,18 @@
     function selectDatafile() {
         dataset = document.getElementById('fileSelect').value;
         separator = document.getElementById('sepSelect').value;
-        loadDataFile(dataset, separator);
+        encoding = document.getElementById('encSelect').value;
+        loadDataFile(dataset, separator, encoding);
     }
 
-    function loadDataFile(path, separator) {
+    function loadDataFile(path, separator, encoding) {
         var kernel = IPython.notebook.kernel;
         var callbacks = {
             iopub: {
                 output: handle_output,
             }
         }
-        var msg_id = kernel.execute('read_dataset("' + path + '","' + separator + '")', callbacks);
+        var msg_id = kernel.execute('read_dataset("' + path + '","' + separator + '","' + encoding + '")', callbacks);
         divVisibility("null-filterType");
         document.getElementById("filter-application-buttons").style.display = "block"; //because now we have a tempDF
         visibleDivId = null;
@@ -1585,7 +1586,8 @@
             console.log("Open file: " + dropl.options[dropl.selectedIndex].getAttribute("path"));
             dataset = dropl.options[dropl.selectedIndex].getAttribute("path");
             separator = document.getElementById('sepSelect').value;
-            loadDataFile(dataset, separator);
+            encoding = document.getElementById('encSelect').value;
+            loadDataFile(dataset, separator, encoding);
         }
     }
 
