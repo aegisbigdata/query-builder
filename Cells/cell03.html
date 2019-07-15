@@ -1400,7 +1400,7 @@
         datafilesObtained(JSON.parse(datafile_options.replace(/u\'/g, '"').replace(/\'/g, '"')))
     }
 
-    //<!-- add tempDF columns to the dropdown selectors -->
+    //add tempDF columns to the dropdown selectors
     function handle_output(data) {
         tempDF_columns = data.content.text;
         addColumnFields(tempDF_columns);
@@ -1441,14 +1441,6 @@
         masterDF_columns = data.content.text;
         addMasterColumnFields(masterDF_columns);
         alert("The master Dataframe (masterDF) was changed successfully!")
-    }
-
-    function showFutureBrowser() {
-        /*
-            var x = document.getElementById("metadata-datasets");
-            retrieve_datasets();
-            
-        */
     }
 
     function populateAvailableDatasetsList(data) {
@@ -1511,22 +1503,13 @@
         divVisibility(divid);
     }
 
-    //<!-- choose which of the forms will be visible -->
+    //choose which of the forms will be visible
     function divVisibility(divId) {
         visibleDivId = divId;
         hideNonVisibleDivs();
-
-        /*<!--
-        if(visibleDivId === divId) {
-            visibleDivId = null;
-          } 
-        else {
-            visibleDivId = divId;
-          }
-        //-->*/
     }
 
-    //<!-- helper:called to choose which of the forms will be visible -->
+    //helper:called to choose which of the forms will be visible
     function hideNonVisibleDivs() {
         var i, divId, div;
         for (i = 0; i < filter_divs.length; i++) {
@@ -1547,7 +1530,7 @@
 
     }
 
-    //<!-- populate column dropdowns -->
+    //populate column dropdowns
     function addColumnFields(columns) {
         arraycols = JSON.parse(columns.replace(/\'/g, '"'))
         $('.temp-column').each(function (index) {
@@ -1566,7 +1549,7 @@
 
     }
 
-    //<!-- populate master column dropdowns -->
+    //populate master column dropdowns
     function addMasterColumnFields(columns) {
         masterarraycols = JSON.parse(columns.replace(/\'/g, '"'))
         $('.master-column').each(function (index) {
@@ -2082,110 +2065,11 @@
         filter_count = 0
     }
 
-    //<!-- helper: adds options to help populate column dropdowns -->
+    //helper: adds options to help populate column dropdowns
     function optionGenerator(instance, paramObj) {
         instance
             .append($("<option></option>")
                 .attr("value", paramObj)
                 .text(paramObj));
     };
-</script>
-
-<script>
-    var k = 0;
-    /*
-    function handle_datasets_output(data){
-        available_datasets = data.content;
-        available_datasets = JSON.parse(available_datasets.text.slice(2,-1));
-        $("#fab2").empty();
-        
-        $.each( available_datasets["results"], function( key, val ) {
-            var keywords = ""
-            for(i = 0; i < val["keywords"].length; i++) {
-                keywords = keywords + ("<span class='label label-default'>"+val["keywords"][i]+"</span>");
-            }
-            $("#fab2").append("<tr>\
-            <td><button type='button' class='btn btn-primary btn-xs' style='width:100%' onclick='getRequestedDataset(\""+val["name"]+"\");'>"+val["name"]+"</button></td>\
-            <td>" + val["description"]+"</td>\
-            <td>" + val["contact_point"]["name"]+" ("+val["contact_point"]["email"]+")</td>\
-            <td><a href='"+ val["publisher"]["homepage"]+"'>"+val["publisher"]["name"]+"</a></td>\
-            <td>" + keywords + "</td>\
-            </tr>");
-        });
-        $("#metadata-datasets").show();
-    }
-    */
-
-    function handle_dataset_retrieval(data) {
-        dataset = data.content;
-        dataset = JSON.parse(dataset.text.slice(2, -1));
-        $("#datasets-info-table").empty();
-
-        $.each(dataset["results"], function (key, val) {
-            var fields = ""
-            for (i = 0; i < val["fields"].length; i++) {
-                fields = fields + val["fields"][i]["name"] + "(" + val["fields"][i]["type"] + "):" + val["fields"][i]["description"] + "<br>"
-            }
-            $("#datasets-info-table").append("<tr>\
-        <td><button type='button' class='btn btn-primary btn-xs' style='width:100%' onclick='readRequestedDataset(\""+ val["access_url"] + "\");'>Open</button></td>\
-        <td>" + val["title"] + "</td>\
-        <td>" + val["description"] + "</td>\
-        <td>" + val["license"] + "</td>\
-        <td class='fieldcell'>" + fields + "</td>\
-        </tr>");
-        });
-        $("#metadata-datasets-info").show();
-        $("#metadata-datasets").hide();
-    }
-
-    function handle_dataset_loading(data) {
-        response = data.content.text;
-        if (response == "500") {
-            alert("Oops! Something went wrong: cannot read file.")
-        }
-        else {
-            addColumnFields(tempDF_columns);
-        }
-    }
-
-    /*
-    function retrieve_datasets(){
-        var kernel = IPython.notebook.kernel;
-        var callbacks = {
-            iopub : {
-                 output : handle_datasets_output,
-            }
-        }
-        var msg_id = kernel.execute('get_datasets()', callbacks);
-    }
-    */
-
-    function getRequestedDataset(dataset_name) {
-        var kernel = IPython.notebook.kernel;
-        var callbacks = {
-            iopub: {
-                output: handle_dataset_retrieval,
-            }
-        }
-        var msg_id = kernel.execute('get_dataset("' + dataset_name + '")', callbacks);
-    }
-
-    function readRequestedDataset(dataset_uri) {
-        var kernel = IPython.notebook.kernel;
-        var callbacks = {
-            iopub: {
-                output: handle_dataset_loading,
-            }
-        }
-        var msg_id = kernel.execute('read_dataset_fromMetadata("' + dataset_uri + '")', callbacks);
-        divVisibility("null-filterType");
-        document.getElementById("filter-application-buttons").style.display = "block"; //because now we have a tempDF
-        visibleDivId = null;
-        applied_filters = {}
-        filter_count = 0
-        $("#show-filters").empty()
-        successfulFilters = [];
-        successfulFiltersPermanent = [];
-    }
-
 </script>

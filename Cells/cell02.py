@@ -18,7 +18,6 @@ myhdfs = phdfs.hdfs(user = hdfs.project_user())
 tempDF = None
 masterDF = None
 hdfspath = hdfs.project_path()
-metaRepo_baseURL = "http://aegis-metadata.fokus.fraunhofer.de/api/datasets"
 g=None
 query_init="from pyspark.sql.functions import col, isnan, isnull, quarter, ntile, month, hour, minute, dayofmonth, dayofyear, to_date, unix_timestamp, trunc, datediff, months_between, sqrt, when, unix_timestamp, year, ltrim, rtrim, coalesce, lit \nfrom pyspark.sql.window import Window \nfrom pyspark.sql import Row, functions as F\nfrom  pyspark.sql.functions import abs as cabs \nfrom pyspark.sql.functions import round as pyround\n"
 query = query_init
@@ -351,25 +350,6 @@ def getCSVfiles():
         fileSet.add(f['name'])
     available_files = [x for x in list(fileSet) if x.endswith(".csv")]
     return available_files
-
-# def get_datasets():
-#     r2 = requests.get(metaRepo_baseURL)
-#     return r2.text
-
-# def get_dataset(name):
-#     r2 = requests.get(metaRepo_baseURL+"/"+name+"/distributions")
-#     return r2.text
-
-#TODO: use Fabian's info on columns...
-# def read_dataset_fromMetadata(selectedFile):
-#     global tempDF
-#     global query
-#     try:
-#         tempDF = spark.read.csv(selectedFile,header=True, inferSchema=True)
-#         query=query_init
-#         return tempDF.columns
-#     except:
-#         return 500
     
 def find_current_projectID(pDict):
     projectsDict = json.loads(pDict)
