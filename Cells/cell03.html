@@ -1834,7 +1834,7 @@
                 parameters.push($("#filterType_filter .operator-selector").find(":selected").val())
                 parameters.push($("#filterType_filter .user-defined-value").val())
                 filterObj["parameters"] = parameters
-                filterObj["descr"] = parameters.toString();
+                filterObj["descr"] = "Filter " + parameters.toString();
                 applied_filters[filter_count.toString()] = filterObj;
                 break;
             }
@@ -1849,7 +1849,7 @@
                 parameters.push($("#filterType_filterOr .operator-selector.col2_operator").find(":selected").val());
                 parameters.push($("#filterType_filterOr .user-defined-value.col2_value").val());
                 filterObj["parameters"] = parameters;
-                filterObj["descr"] = parameters.slice(0,3).toString() + " OR " + parameters.slice(3).toString();
+                filterObj["descr"] = "Filter " + parameters.slice(0,3).toString() + " OR " + parameters.slice(3).toString();
                 applied_filters[filter_count.toString()] = filterObj;
                 break;
             }

@@ -160,11 +160,11 @@ def apply_filters(applied_filters):
                 try:
                     then_value = float(applied_filters[index]["parameters"][3])
                 except ValueError as ver:
-                    then_value = "'"+applied_filters[index]["parameters"][3]+"'"
+                    then_value = applied_filters[index]["parameters"][3]
                 try:
                     else_value = float(applied_filters[index]["parameters"][4])
                 except ValueError as ver:
-                    else_value = "'"+applied_filters[index]["parameters"][4]+"'"
+                    else_value = applied_filters[index]["parameters"][4]
                 tempDF = tempDF.withColumn(new_col_name,when(evaluated_condition,then_value).otherwise(else_value))
                 query+="tempDF = tempDF.withColumn(\""+new_col_name+"\",when("+condition+",\""+str(then_value)+"\").otherwise(\""+str(else_value)+"\"))\n"
             elif filter_type=="when_2":
