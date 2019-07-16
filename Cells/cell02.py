@@ -330,14 +330,17 @@ def apply_filters(applied_filters):
             return
     return filters_success
 
-def read_dataset(selectedFile, separator, encoding="utf_8"):
+def read_dataset(selectedFile, separator, encoding):
     global tempDF
     global query
     global g
     if selectedFile.startswith('/'):
         selectedFile = "hdfs://" + myhdfs.host + ":" + str(myhdfs.port) + selectedFile
     try:
-        tempDF = spark.read.csv(selectedFile, header=True, inferSchema=True, sep=separator, encoding=encoding )
+        if encoding:
+            tempDF = spark.read.csv(selectedFile, header=True, inferSchema=True, sep=separator, encoding=encoding)
+        else:
+            tempDF = spark.read.csv(selectedFile, header=True, inferSchema=True, sep=separator)
     except Exception as e:
         g=e
     query=query_init
